@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  /* 莫蘭迪綠主色調 */
+  --bg:#f0f4f1; --sf:#e8ede9; --cd:#ffffff; --bd:#c9d4ce;
+  --tx:#3c4a42; --mu:#6f8278; --lt:#a2b1a8;
+  /* 莫蘭迪彩色輔助 */
+  --ms:#6b8e7b; --mr:#b88e8d; --mb:#728c99; --mt:#a39682;
+  --ml:#928599; --mo:#8e9972;
+  --cs:#728c99; --cst:#8e9972; --cw:#b88e8d; --csd:#928599; --co:#a39682;
+}
+body{font-family:'PingFang TC','Noto Sans TC',sans-serif;background:var(--bg);color:var(--tx);font-size:13px;line-height:1.6;zoom:1.15}
+nav{background:var(--sf);border-bottom:1px solid var(--bd);padding:0 12px;display:flex;align-items:center;flex-wrap:wrap;position:sticky;top:0;z-index:100}
+.nb{background:none;border:none;padding:10px 9px;font-size:11px;color:var(--mu);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+.nb.active{color:var(--tx);border-bottom-color:var(--mr)}.nb:hover{color:var(--tx)}
+.nav-brand{font-size:11px;font-weight:500;color:var(--mu);padding:10px 10px 10px 0;border-right:1px solid var(--bd);margin-right:2px}
+.page{display:none;padding:16px 14px;max-width:1300px;margin:0 auto}.page.active{display:block}
+.sec-t{font-size:9px;font-weight:500;letter-spacing:.1em;color:var(--mu);margin-bottom:10px}
+.card{background:var(--cd);border:1px solid var(--bd);border-radius:10px;padding:14px}
+.add-btn{border:none;border-radius:6px;padding:5px 11px;font-size:11px;color:#fff;cursor:pointer;background:var(--mb)}
+.ai-btn{background:var(--mb);border:none;border-radius:6px;padding:6px 12px;font-size:11px;color:#fff;cursor:pointer}
+
+/* ── Notion-style editable ── */
+.e-view{cursor:pointer;border-radius:4px;padding:2px 4px;margin:-2px -4px;min-height:1.4em;line-height:1.6;word-break:break-all}
+.e-view:hover{background:rgba(143,160,180,.1)}
+.e-view.placeholder{color:var(--lt);font-style:italic}
+.e-edit-wrap{display:flex;flex-direction:column;gap:4px}
+.e-inp{width:100%;border:1px solid var(--mb);border-radius:5px;padding:4px 7px;font-size:inherit;font-family:inherit;color:var(--tx);outline:none;background:var(--cd);resize:vertical;min-height:28px}
+.e-ta{min-height:60px}
+.e-actions{display:flex;gap:5px;align-items:center}
+.e-save{background:var(--mb);border:none;border-radius:4px;padding:3px 9px;font-size:10px;color:#fff;cursor:pointer}
+.e-cancel{background:none;border:1px solid var(--bd);border-radius:4px;padding:3px 9px;font-size:10px;color:var(--mu);cursor:pointer}
+.e-del{background:none;border:none;font-size:10px;color:var(--lt);cursor:pointer;margin-left:auto;padding:2px 4px}
+.e-del:hover{color:var(--mr)}
+
+/* YEAR CAL */
+.yr-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:11px}
+.mo-mini{background:var(--cd);border:1px solid var(--bd);border-radius:10px;padding:10px;cursor:pointer;transition:.2s}
+.mo-mini:hover{border-color:var(--mr)}.mo-mini h3{font-size:11px;font-weight:500;color:var(--mu);margin-bottom:6px}
+.mc{width:100%;border-collapse:collapse;font-size:9px}
+.mc th{color:var(--lt);font-weight:400;text-align:center;padding:1px}
+.mc td{text-align:center;padding:1px;color:var(--mu);line-height:1.9}
+.mc td.t-hol{color:var(--mr)!important;font-weight:500}
+.mc td.t-today span{background:var(--mr);color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;font-size:8px}
+.mc td.has-ev::after{content:'·';color:var(--ms);font-size:12px;line-height:0;vertical-align:middle}
+
+/* ANNUAL */
+.ai-box{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:11px;margin-bottom:13px}
+.ai-row{display:flex;gap:7px}
+.ai-inp{flex:1;border:1px solid var(--bd);border-radius:6px;padding:6px 9px;font-size:11px;outline:none;background:var(--cd);color:var(--tx);font-family:inherit}
+.ai-inp:focus{border-color:var(--mb)}
+.ai-res{margin-top:8px;font-size:11px;color:var(--tx);line-height:1.9}
+.ann-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.ann-cat{background:var(--cd);border:1px solid var(--bd);border-radius:8px;padding:11px}
+.ann-top{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.cat-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.ann-goal-row{margin-bottom:6px}
+.add-goal-btn{font-size:9px;color:var(--mu);background:none;border:none;cursor:pointer;padding:2px 0;display:flex;align-items:center;gap:3px}
+
+/* ANNUAL REVIEW */
+.yr-review{margin-top:20px;border-top:1px solid var(--bd);padding-top:16px}
+.yr-stats{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:14px}
+.yr-stats > div {flex:1;min-width:60px;}
+.yr-stat{background:var(--cd);border:1px solid var(--bd);border-radius:8px;padding:10px;text-align:center}
+.yr-stat-n{font-size:22px;font-weight:500;color:var(--ms)}
+.yr-stat-l{font-size:9px;color:var(--mu);margin-top:2px}
+.yr-charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:14px}
+.yr-chart-card{background:var(--cd);border:1px solid var(--bd);border-radius:8px;padding:12px}
+.yr-chart-title{font-size:10px;color:var(--mu);margin-bottom:8px;font-weight:500}
+.yr-q-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.yr-q-card{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:10px}
+.yr-q-lbl{font-size:9px;font-weight:500;color:var(--mu);margin-bottom:3px}
+.yr-q-guide{font-size:9px;color:var(--lt);margin-bottom:7px;line-height:1.5}
+
+/* QUARTER */
+.q-tabs{display:flex;gap:6px;margin-bottom:14px}
+.q-tab{background:var(--cd);border:1px solid var(--bd);border-radius:6px;padding:5px 13px;font-size:11px;cursor:pointer;color:var(--mu)}
+.q-tab.active{background:var(--mr);border-color:var(--mr);color:#fff}
+.qc{display:none}.qc.active{display:block}
+.q-ann-ref{background:rgba(143,160,180,.07);border:1px solid var(--bd);border-radius:8px;padding:9px;margin-bottom:12px}
+.q-ann-ref-t{font-size:9px;color:var(--mu);font-weight:500;letter-spacing:.06em;margin-bottom:7px}
+.q-ann-cats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.q-ann-cl{display:flex;align-items:center;gap:4px;font-size:9px;font-weight:500;color:var(--mu);margin-bottom:2px}
+.q-ann-item{font-size:10px;color:var(--tx);padding-left:8px;margin-bottom:1px;word-break:break-all}
+.q-kpi-area{margin-bottom:14px}
+.q-kpi-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.q-kpi-col{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:10px}
+.q-kpi-lbl{font-size:9px;font-weight:500;color:var(--mu);margin-bottom:7px;letter-spacing:.06em}
+.kpi-dz{min-height:48px;border:1.5px dashed var(--bd);border-radius:6px;padding:6px;display:flex;flex-wrap:wrap;gap:4px;align-items:flex-start}
+.kpi-dz.over{border-color:var(--ms);background:rgba(143,168,154,.05)}
+.kpi-chip{background:var(--cd);border:1px solid var(--bd);border-radius:5px;padding:3px 8px;font-size:10px;cursor:grab;display:flex;align-items:center;gap:4px}
+.kpi-chip.done-kpi{background:rgba(143,168,154,.2);border-color:var(--ms);color:#3d6050}
+.kpi-chip.undone-kpi{background:rgba(196,164,155,.12);border-color:var(--mr)}
+.kpi-hint{font-size:9px;color:var(--lt)}
+.kpi-add-inp{flex:1;border:1px solid var(--bd);background:var(--cd);border-radius:6px;padding:5px 8px;font-size:11px;color:var(--tx);outline:none;font-family:inherit}
+.sw-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sw-cell{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:10px}
+.sw-label{font-size:9px;font-weight:500;color:var(--mu);margin-bottom:2px}
+.sw-guide{font-size:9px;color:var(--lt);margin-bottom:6px;line-height:1.5}
+.q-rv-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}
+.q-rv-cell{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:10px}
+.q-rv-lbl{font-size:9px;font-weight:500;color:var(--mu);margin-bottom:2px}
+.q-rv-guide{font-size:9px;color:var(--lt);margin-bottom:6px;line-height:1.5}
+.gl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px}
+.gl-cat{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:10px}
+.gl-label{font-size:9px;font-weight:500;letter-spacing:.07em;color:var(--mu);margin-bottom:5px;display:flex;align-items:center;gap:4px}
+
+/* MONTH */
+.m-nav{display:flex;align-items:center;gap:9px;margin-bottom:14px}
+.m-sel{border:1px solid var(--bd);background:var(--cd);border-radius:6px;padding:5px 9px;font-size:12px;color:var(--tx);outline:none;font-family:inherit}
+.m-nav-btn{background:var(--cd);border:1px solid var(--bd);border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:13px;color:var(--mu);display:flex;align-items:center;justify-content:center}
+.m-nav-btn:hover{border-color:var(--mr)}
+.m-main{display:grid;grid-template-columns:205px 1fr;gap:13px}
+.m-sb{display:flex;flex-direction:column;gap:8px}
+.m-sb-card{background:var(--cd);border:1px solid var(--bd);border-radius:8px;padding:9px}
+.m-sb-lbl{font-size:9px;font-weight:500;letter-spacing:.07em;color:var(--mu);margin-bottom:5px}
+.q-ref-inline{background:rgba(143,160,180,.08);border-radius:5px;padding:5px 7px;margin-bottom:6px}
+.q-ref-cat-row{margin-bottom:4px}
+.q-ref-cat-lbl{display:flex;align-items:center;gap:4px;font-size:9px;font-weight:500;color:var(--mu);margin-bottom:1px}
+.q-ref-goal{font-size:9px;color:var(--tx);padding-left:8px;margin-bottom:1px}
+.mo-goal-row{margin-bottom:5px}
+.drag-zone{min-height:34px;border:1.5px dashed var(--bd);border-radius:6px;padding:5px 6px;display:flex;flex-wrap:wrap;gap:3px;align-items:flex-start}
+.drag-zone.over{border-color:var(--ms);background:rgba(143,168,154,.05)}
+.drag-chip{background:var(--sf);border:1px solid var(--bd);border-radius:4px;padding:2px 6px;font-size:9px;cursor:grab;color:var(--tx);white-space:nowrap}
+.done-chip{background:rgba(143,168,154,.2);border-color:var(--ms);color:#3d6050}
+.undone-chip{background:rgba(196,164,155,.15);border-color:var(--mr);color:#7a5048}
+.dz-hint{font-size:9px;color:var(--lt)}
+.cal-wrap{overflow-x:auto}
+.cal{width:100%;border-collapse:collapse;table-layout:fixed}
+.cal th{font-size:9px;font-weight:500;color:var(--mu);text-align:center;padding:4px 2px;border-bottom:1px solid var(--bd)}
+.cal td{vertical-align:top;border:1px solid var(--bd);padding:4px;height:66px;background:var(--cd);cursor:pointer;font-size:10px}
+.cal td:hover:not(.empty){background:var(--sf)}
+.cal td.empty{background:var(--bg);cursor:default}
+.cal td.today-c{background:#fff8f6}.cal td.hol-c{background:rgba(232,196,188,.12)}
+.dn{font-size:9px;color:var(--mu);margin-bottom:1px}
+.today-c .dn{font-weight:500;color:var(--mr)}.hol-c .dn{color:var(--mr)}
+.hol-lbl{font-size:7px;color:var(--mr);display:block;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev-chip{font-size:8px;padding:1px 4px;border-radius:2px;margin-bottom:1px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;display:block}
+.chip-school{background:var(--cs)}.chip-study{background:var(--cst)}.chip-work{background:var(--cw)}.chip-side{background:var(--csd)}.chip-other{background:var(--co)}
+.m-reflect{margin-top:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.m-reflect-card{background:var(--cd);border:1px solid var(--bd);border-radius:8px;padding:11px}
+.m-reflect-lbl{font-size:9px;font-weight:500;color:var(--mu);letter-spacing:.07em;margin-bottom:3px}
+.m-reflect-guide{font-size:9px;color:var(--lt);margin-bottom:7px;line-height:1.5}
+
+/* WEEK */
+.wk-nav{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:11px}
+.wk-sel{border:1px solid var(--bd);background:var(--cd);border-radius:6px;padding:5px 8px;font-size:11px;color:var(--tx);outline:none;font-family:inherit}
+.today-btn{background:var(--mr);border:none;border-radius:6px;padding:5px 11px;font-size:11px;color:#fff;cursor:pointer}
+.wk-layout{display:grid;grid-template-columns:130px 1fr;gap:11px}
+.wk-sb-sec{margin-bottom:9px}
+.wk-lbl{font-size:9px;font-weight:500;letter-spacing:.07em;color:var(--mu);margin-bottom:4px}
+.leg-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;align-items:center}
+.leg{display:flex;align-items:center;gap:3px;font-size:9px;color:var(--mu)}
+.leg-dot{width:8px;height:8px;border-radius:2px}
+.health-bar{background:var(--cd);border:1px solid var(--bd);border-radius:8px;padding:9px;margin-bottom:9px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.health-field{display:flex;flex-direction:column;gap:2px}
+.health-lbl{font-size:9px;color:var(--mu)}
+.health-inp{border:1px solid var(--bd);border-radius:5px;padding:4px 6px;font-size:11px;color:var(--tx);outline:none;background:var(--sf);font-family:inherit;width:100%}
+.todo-row{display:flex;align-items:center;gap:4px;margin-bottom:4px}
+.todo-chk{width:12px;height:12px;border-radius:2px;border:1px solid var(--bd);cursor:pointer;flex-shrink:0;appearance:none;-webkit-appearance:none}
+.todo-chk:checked{background:var(--ms);border-color:var(--ms)}
+.todo-src{font-size:7px;color:var(--mu);background:rgba(168,157,180,.18);padding:1px 3px;border-radius:2px;flex-shrink:0}
+.add-todo-btn{font-size:9px;color:var(--mu);background:none;border:none;cursor:pointer;padding:1px 0}
+/* TL */
+.tl-wrap{overflow-x:auto}
+.tl{display:grid;min-width:520px}
+.tl-corner{border-bottom:1px solid var(--bd);border-right:1px solid var(--bd);background:var(--sf)}
+.tl-th{font-size:9px;font-weight:500;color:var(--mu);text-align:center;padding:5px 2px;border-bottom:1px solid var(--bd);border-right:1px solid var(--bd);background:var(--sf)}
+.tl-th.today-h{color:var(--mr)}.tl-th.hol-h{background:rgba(232,196,188,.15)}
+.tl-lbl{height:44px;display:flex;align-items:flex-start;justify-content:flex-end;padding:2px 4px 0;font-size:7px;color:var(--lt);border-bottom:1px solid var(--bd);border-right:1px solid var(--bd);background:var(--sf)}
+.tl-cell{height:44px;border-bottom:1px solid var(--bd);border-right:1px solid var(--bd);position:relative;cursor:pointer}
+.tl-cell:hover{background:rgba(143,160,180,.05)}.tl-cell.hol-cell{background:rgba(232,196,188,.08)}
+.ev-blk{position:absolute;border-radius:3px;font-size:8px;padding:2px 4px;overflow:hidden;z-index:2;cursor:pointer;line-height:1.4;color:#fff}
+.ev-blk.plan{opacity:.92}.ev-blk.actual{opacity:.78;border:1.5px dashed rgba(255,255,255,.55)}
+.tl-bottom-lbl{border-right:1px solid var(--bd);background:var(--sf);border-bottom:1px solid var(--bd);display:flex;flex-direction:column;justify-content:center;align-items:flex-end;padding:2px 4px;gap:3px}
+.tl-bottom-lbl span{font-size:7px;color:var(--lt)}
+.tl-day-bottom{border-right:1px solid var(--bd);background:var(--sf);border-bottom:1px solid var(--bd);padding:3px 4px;display:flex;flex-direction:column;gap:3px}
+.bottom-inp{width:100%;border:1px solid var(--bd);border-radius:3px;padding:2px 4px;font-size:9px;color:var(--tx);outline:none;background:var(--cd);font-family:inherit}
+.bottom-inp:focus{border-color:var(--mb)}
+.sleep-mini-btn{font-size:8px;padding:2px 4px;border-radius:3px;border:1px solid var(--bd);background:var(--cd);cursor:pointer;color:var(--mu);text-align:center;white-space:nowrap}
+.sleep-mini-btn.has-data{background:rgba(143,160,180,.2);border-color:var(--mb);color:var(--mb)}
+.hm-row{display:flex;align-items:center;gap:4px;margin-bottom:4px}
+.hm-name{font-size:9px;color:var(--mu);width:54px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0}
+.hm-dots{display:flex;gap:2px}
+.hm-dot{width:11px;height:11px;border-radius:2px;background:var(--bd);cursor:pointer;border:none;flex-shrink:0}
+.hm-dot.done{background:var(--ms)}
+
+/* STUDY */
+.st-ai-box{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:10px;margin-bottom:11px}
+.st-ai-ta{width:100%;border:1px solid var(--bd);border-radius:6px;padding:7px 9px;font-size:11px;color:var(--tx);resize:none;outline:none;font-family:inherit;height:64px;background:var(--cd)}
+.st-add{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:11px;align-items:flex-end}
+.st-add input,.st-add select{border:1px solid var(--bd);background:var(--cd);border-radius:6px;padding:5px 8px;font-size:11px;color:var(--tx);outline:none;font-family:inherit}
+.st-table{width:100%;border-collapse:collapse}
+.st-table th{font-size:9px;font-weight:500;color:var(--mu);text-align:left;padding:7px 9px;border-bottom:1px solid var(--bd);letter-spacing:.05em}
+.st-table td{padding:6px 9px;border-bottom:1px solid var(--bd);vertical-align:top;font-size:10px}
+.st-table tr:hover td{background:var(--sf)}
+.pb{height:5px;border-radius:3px;background:var(--bd);overflow:hidden;width:58px}
+.pf{height:100%;border-radius:3px;background:var(--mo)}
+.bdg{display:inline-flex;padding:1px 5px;border-radius:3px;font-size:9px}
+.bdg-school{background:rgba(143,160,180,.18);color:var(--cs)}
+.bdg-study{background:rgba(164,170,138,.18);color:#5a6b45}
+.bdg-side{background:rgba(168,157,180,.18);color:var(--ml)}
+.st-items{list-style:none;margin-top:4px}
+.st-item{display:flex;align-items:center;gap:4px;margin-bottom:4px}
+.st-icon{width:14px;height:14px;border-radius:3px;border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:9px;cursor:pointer;flex-shrink:0;color:var(--mu)}
+.st-icon.done{background:var(--ms);border-color:var(--ms);color:#fff}
+.st-icon.miss{background:var(--mr);border-color:var(--mr);color:#fff}
+.st-item-ng-btn{font-size:8px;color:var(--mb);background:none;border:1px solid var(--mb);border-radius:3px;cursor:pointer;padding:1px 4px;white-space:nowrap;flex-shrink:0}
+.exp-btn{font-size:9px;color:var(--mb);background:none;border:none;cursor:pointer}
+.row-del-btn{font-size:9px;color:var(--lt);background:none;border:none;cursor:pointer;padding:0 3px}
+.row-del-btn:hover{color:var(--mr)}
+
+/* NINE GRID */
+.ng-header{display:flex;align-items:center;gap:10px;margin-bottom:11px;flex-wrap:wrap}
+.ng-back{background:none;border:1px solid var(--bd);border-radius:6px;padding:5px 11px;font-size:11px;cursor:pointer;color:var(--mu)}
+.ng-title{font-size:14px;font-weight:500;flex:1}
+.ng-tabs{display:flex;gap:5px;margin-bottom:11px;flex-wrap:wrap;align-items:center}
+.ng-tab{background:var(--cd);border:1px solid var(--bd);border-radius:5px;padding:4px 10px;font-size:10px;cursor:pointer;color:var(--mu);display:flex;align-items:center;gap:5px}
+.ng-tab.active{background:var(--mb);border-color:var(--mb);color:#fff}
+.ng-tab-del{font-size:9px;opacity:.6;cursor:pointer;line-height:1}
+.ng-tab-del:hover{opacity:1}
+.ng-add-tab{background:none;border:1px dashed var(--bd);border-radius:5px;padding:4px 10px;font-size:10px;cursor:pointer;color:var(--mu)}
+.ng-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:820px}
+.ng-cell{background:var(--cd);border:1px solid var(--bd);border-radius:8px;padding:10px;min-height:120px}
+.ng-cell.center{border-color:var(--mr);background:#fff8f6}
+.ng-cell-lbl{font-size:9px;font-weight:500;color:var(--mu);letter-spacing:.07em;margin-bottom:3px}
+.ng-cell-guide{font-size:9px;color:var(--lt);margin-bottom:6px;line-height:1.5;min-height:26px}
+
+/* HABIT */
+.h-m-sel{display:flex;gap:4px;margin-bottom:11px;flex-wrap:wrap}
+.h-m-btn{font-size:9px;padding:3px 7px;border-radius:4px;border:1px solid var(--bd);background:var(--cd);cursor:pointer;color:var(--mu)}
+.h-m-btn.active{background:var(--ms);border-color:var(--ms);color:#fff}
+.h-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:13px}
+.h-stat{background:var(--cd);border:1px solid var(--bd);border-radius:8px;padding:9px;text-align:center}
+.h-stat-n{font-size:20px;font-weight:500;color:var(--ms)}
+.h-stat-l{font-size:9px;color:var(--mu);margin-top:1px}
+.add-h-row{display:flex;gap:6px;margin-bottom:11px}
+.add-h-row input{flex:1;border:1px solid var(--bd);background:var(--cd);border-radius:6px;padding:5px 9px;font-size:11px;outline:none;color:var(--tx);font-family:inherit}
+.h-grid-head{display:grid;gap:1px;margin-bottom:1px}
+.h-col-lbl{font-size:7px;color:var(--lt);text-align:center;padding:1px}
+.h-row-wrap{display:grid;gap:1px;margin-bottom:1px;align-items:center}
+.h-name-cell{display:flex;align-items:center;gap:3px;padding:2px 4px}
+.h-name{font-size:9px;color:var(--tx);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.h-cell{width:100%;aspect-ratio:1;border-radius:2px;background:var(--bd);cursor:pointer;border:none;transition:background .15s}
+.h-cell.done{background:var(--ms)}
+.sleep-chart-area{margin-top:16px}
+.sleep-chart-t{font-size:10px;color:var(--mu);margin-bottom:7px;font-weight:500}
+
+/* RT */
+.rt-goal-row{display:flex;align-items:center;gap:8px;background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:9px;margin-bottom:13px}
+.rt-add-row{display:flex;gap:7px;margin-bottom:13px;flex-wrap:wrap;align-items:flex-end}
+.rt-add-row input{border:1px solid var(--bd);background:var(--cd);border-radius:6px;padding:5px 8px;font-size:11px;color:var(--tx);outline:none;font-family:inherit}
+.rt-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:13px}
+.rt-chart-card{background:var(--cd);border:1px solid var(--bd);border-radius:8px;padding:12px;margin-bottom:13px}
+.rt-chart-t{font-size:10px;color:var(--mu);font-weight:500;margin-bottom:8px}
+.rt-table{width:100%;border-collapse:collapse}
+.rt-table th{font-size:9px;font-weight:500;color:var(--mu);text-align:left;padding:6px 8px;border-bottom:1px solid var(--bd);letter-spacing:.05em}
+.rt-table td{font-size:11px;padding:6px 8px;border-bottom:1px solid var(--bd)}
+.rt-table tr:hover td{background:var(--sf)}
+
+/* MODAL */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(74,69,63,.38);z-index:200;align-items:center;justify-content:center}
+.modal-ov.open{display:flex}
+.modal{background:var(--cd);border-radius:12px;padding:17px;width:320px;border:1px solid var(--bd);max-height:92vh;overflow-y:auto}
+.modal-t{font-size:13px;font-weight:500;margin-bottom:11px}
+.m-inp{width:100%;border:1px solid var(--bd);border-radius:6px;padding:6px 8px;font-size:11px;outline:none;font-family:inherit;color:var(--tx);margin-bottom:6px;background:var(--cd)}
+.m-inp:focus{border-color:var(--mr)}
+.m-sel{width:100%;border:1px solid var(--bd);border-radius:6px;padding:6px 8px;font-size:11px;outline:none;font-family:inherit;color:var(--tx);margin-bottom:6px;background:var(--cd)}
+.m-lbl{font-size:10px;color:var(--mu);margin-bottom:4px;margin-top:6px}
+.m-time-row{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.m-type-row{display:flex;gap:5px;margin-bottom:7px}
+.m-type-btn{flex:1;background:var(--sf);border:1px solid var(--bd);border-radius:5px;padding:5px;font-size:10px;cursor:pointer;color:var(--mu)}
+.m-type-btn.active{background:var(--mb);border-color:var(--mb);color:#fff}
+.rpt-days{display:flex;gap:3px;margin-bottom:6px}
+.rpt-d{width:24px;height:24px;border-radius:50%;border:1px solid var(--bd);background:var(--cd);font-size:9px;cursor:pointer;color:var(--mu)}
+.rpt-d.sel{background:var(--mr);border-color:var(--mr);color:#fff}
+.m-btn-row{display:flex;gap:6px;margin-top:10px;justify-content:flex-end}
+.m-cancel{background:none;border:1px solid var(--bd);border-radius:6px;padding:6px 11px;font-size:11px;cursor:pointer;color:var(--mu)}
+.m-save{background:var(--mr);border:none;border-radius:6px;padding:6px 11px;font-size:11px;color:#fff;cursor:pointer}
+.m-del{background:none;border:1px solid var(--mr);border-radius:6px;padding:6px 11px;font-size:11px;color:var(--mr);cursor:pointer;margin-right:auto}
+.sleep-chk-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.sleep-chk{display:flex;align-items:center;gap:4px;font-size:10px;cursor:pointer}
+.sleep-chk input{width:12px;height:12px;cursor:pointer}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-brand">2026</div>
+  <button class="nb active" onclick="showPg('year',this)">年曆</button>
+  <button class="nb" onclick="showPg('annual',this)">年計畫</button>
+  <button class="nb" onclick="showPg('quarter',this)">季計畫</button>
+  <button class="nb" onclick="showPg('month',this)">月曆</button>
+  <button class="nb" onclick="showPg('week',this)">週計畫</button>
+  <button class="nb" onclick="showPg('study',this)">讀書計畫</button>
+  <button class="nb" onclick="showPg('habit',this)">習慣追蹤</button>
+  <button class="nb" onclick="showPg('rt',this)">Read Theory</button>
+  <div id="syncStatus" style="margin-left:auto;display:flex;align-items:center;gap:5px;padding:0 10px;font-size:10px;color:var(--mu)">
+    <div class="sync-dot" style="width:7px;height:7px;border-radius:50%;background:var(--lt);transition:background .3s"></div>
+    <span class="sync-txt">載入中</span>
+    <button onclick="localStorage.removeItem('MY_API_KEY');alert('金鑰已清除，請按確定後重新整理網頁！');" style="background:none;border:1px solid var(--mr);border-radius:4px;padding:2px 8px;font-size:9px;color:var(--mr);cursor:pointer;margin-left:4px">重設金鑰</button>
+  </div>
+</nav>
+
+<div id="pg-year" class="page active"><div class="sec-t" style="margin-bottom:13px">2026 年曆總覽</div><div class="yr-grid" id="yrGrid"></div></div>
+
+<div id="pg-annual" class="page">
+  <div class="sec-t" style="margin-bottom:11px">2026 年度計畫（MVP 漏斗）</div>
+  <div class="ai-box"><div style="font-size:10px;color:var(--mu);margin-bottom:7px">不知道要計畫什麼？輸入關鍵字，AI 幫你拆解年度目標</div><div class="ai-row"><input class="ai-inp" id="aiInp" placeholder="例：考多益、存緊急備用金、副業"><button class="ai-btn" onclick="runAI()">AI 引導</button></div><div class="ai-res" id="aiRes"></div></div>
+  
+  <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px">
+    <div class="card"><div class="sec-t">1. 核心身份北極星</div><div style="font-size:10px;color:var(--lt);margin-bottom:8px">今年、或下個人生階段，我想成為一個怎樣的人？（一句話即可）</div><div id="annIdentity"></div></div>
+    <div class="card">
+      <div class="sec-t">2. 戰略重心 & 3. 最小阻力習慣</div>
+      <div style="font-size:10px;color:var(--lt);margin-bottom:8px">分項設定今年的進攻目標與對應的高槓桿習慣</div>
+      <div class="ann-grid" id="annFunnelGrid"></div>
+    </div>
+  </div>
+
+  <div class="yr-review">
+    <button onclick="toggleYrReview()" style="background:none;border:1px solid var(--bd);border-radius:6px;padding:6px 12px;font-size:11px;color:var(--mu);cursor:pointer;width:100%;text-align:left;display:flex;justify-content:space-between"><span>2026 年度回顧與統計</span><span id="yrRevIcon">▼</span></button>
+    <div id="yrRevBody" style="display:none;margin-top:14px;">
+      <div class="yr-stats" id="yrStats"></div>
+      <div class="yr-charts">
+        <div class="yr-chart-card"><div class="yr-chart-title">習慣完成率（月）</div><div style="position:relative;height:130px"><canvas id="yrHabitChart"></canvas></div></div>
+        <div class="yr-chart-card"><div class="yr-chart-title">睡眠平均（月）</div><div style="position:relative;height:130px"><canvas id="yrSleepChart"></canvas></div></div>
+        <div class="yr-chart-card"><div class="yr-chart-title">健康數據趨勢（週）</div><div style="position:relative;height:150px"><canvas id="yrHealthChart"></canvas></div></div>
+      </div>
+      <div class="sec-t" style="margin-bottom:10px">年度反思問答</div>
+      <div class="yr-q-grid" id="yrQGrid"></div>
+    </div>
+  </div>
+</div>
+
+<div id="pg-quarter" class="page"><div class="q-tabs"><button class="q-tab active" onclick="showQ(1,this)">Q1 1–3月</button><button class="q-tab" onclick="showQ(2,this)">Q2 4–6月</button><button class="q-tab" onclick="showQ(3,this)">Q3 7–9月</button><button class="q-tab" onclick="showQ(4,this)">Q4 10–12月</button></div><div id="qConts"></div></div>
+<div id="pg-month" class="page">
+  <div class="m-nav"><button class="m-nav-btn" onclick="chgMo(-1)">&#8249;</button><select class="m-sel" id="moSel" onchange="S.curMo=parseInt(this.value);renderMonth()"></select><button class="m-nav-btn" onclick="chgMo(1)">&#8250;</button></div>
+  <div class="m-main"><div class="m-sb" id="moSb"></div><div><div class="cal-wrap"><table class="cal"><thead><tr id="calHead"></tr></thead><tbody id="calBody"></tbody></table></div><div class="m-reflect" id="moReflect"></div></div></div>
+</div>
+<div id="pg-week" class="page">
+  <div class="wk-nav"><select class="wk-sel" id="wkMoSel" onchange="onWkMoChg()"></select><select class="wk-sel" id="wkWkSel" onchange="onWkWkChg()"></select><button class="today-btn" onclick="goToday()">跳到今天</button></div>
+  <div class="leg-row"><div class="leg"><div class="leg-dot" style="background:var(--cs)"></div>上課</div><div class="leg"><div class="leg-dot" style="background:var(--cst)"></div>讀書</div><div class="leg"><div class="leg-dot" style="background:var(--cw)"></div>上班</div><div class="leg"><div class="leg-dot" style="background:var(--csd)"></div>副業</div><div class="leg"><div class="leg-dot" style="background:var(--co)"></div>其他</div><span style="font-size:9px;color:var(--lt);margin-left:4px">實色=計畫 · 虛框=實際</span></div>
+  <div class="health-bar" id="healthBar"></div>
+  <div class="wk-layout">
+    <div>
+      <div class="wk-sb-sec"><div class="wk-lbl">本週目標</div><div id="wkGoalArea"></div></div>
+      <div class="wk-sb-sec"><div class="wk-lbl">待辦事項</div><div id="todoList"></div><button class="add-todo-btn" onclick="addTodo()">＋ 新增</button></div>
+      <div class="wk-sb-sec" style="margin-top:6px"><div class="wk-lbl">習慣打卡</div><div id="wkHabits"></div></div>
+    </div>
+    <div class="tl-wrap"><div class="tl" id="wkTl"></div></div>
+  </div>
+</div>
+<div id="pg-study" class="page">
+  <div class="sec-t" style="margin-bottom:10px">讀書計畫追蹤</div>
+  <div class="st-ai-box"><div style="font-size:10px;color:var(--mu);margin-bottom:6px">📋 貼入文字，AI 自動辨識並批量匯入</div><textarea class="st-ai-ta" id="stAiTa" placeholder="例：研究方法 3/2-6/24 鈕文英Ch1、Ch3；網路行銷 3/3 製作消費者旅程地圖..."></textarea><button class="ai-btn" style="margin-top:7px" onclick="stAiImport()">AI 辨識並匯入</button><span id="stAiRes" style="font-size:10px;color:var(--mu);margin-left:8px"></span></div>
+  <div class="st-add"><input id="s-sub" placeholder="科目/書名" style="width:88px"><input id="s-wk" placeholder="週次" style="width:100px"><select id="s-cat"><option value="school">上課</option><option value="study">自習</option><option value="side">副業</option></select><button class="add-btn" onclick="addStudy()">＋ 新增課程</button></div>
+  <div class="card" style="padding:0;overflow:hidden"><table class="st-table"><thead><tr><th style="width:80px">科目</th><th style="width:95px">週次</th><th>讀書內容（列點）</th><th style="width:60px">進度</th><th style="width:32px">完成</th><th style="width:28px"></th></tr></thead><tbody id="stBody"></tbody></table></div>
+</div>
+<div id="pg-ninegrid" class="page">
+  <div class="ng-header"><button class="ng-back" onclick="showPg('study',null)">← 返回讀書計畫</button><div class="ng-title" id="ngTitle">九宮格筆記</div><button class="ai-btn" style="font-size:10px;padding:5px 11px" onclick="ngAISuggest()">AI 建議提問</button><span id="ngAiStatus" style="font-size:10px;color:var(--mu)"></span></div>
+  <div class="ng-tabs" id="ngTabs"></div>
+  <div class="ng-grid" id="ngGrid"></div>
+</div>
+<div id="pg-habit" class="page">
+  <div class="sec-t">習慣追蹤</div>
+  <div class="h-m-sel" id="hMonthSel"></div>
+  <div class="h-summary" id="hSum"></div>
+  <div class="add-h-row"><input id="hInp" placeholder="新增習慣（如：運動、閱讀20分鐘）"><button class="add-btn" style="background:var(--ms)" onclick="addHabit()">＋</button></div>
+  <div id="hGrid"></div>
+  <div class="sleep-chart-area"><div class="sleep-chart-t">本月睡眠記錄（就寢 / 起床 · 點上標註時數）</div><div style="position:relative;height:175px;width:100%"><canvas id="sleepChart"></canvas></div></div>
+  <div class="sleep-chart-area" style="margin-top:20px"><div class="sleep-chart-t">本月健康數據紀錄（體重 / 體脂 / 肌肉）</div><div style="position:relative;height:160px;width:100%"><canvas id="moHealthChart"></canvas></div></div>
+</div>
+<div id="pg-rt" class="page">
+  <div class="sec-t" style="margin-bottom:11px">Read Theory 成績追蹤</div>
+  <div class="rt-goal-row"><span style="font-size:10px;color:var(--mu)">目標等級（Lexile）</span><input style="border:1px solid var(--bd);background:var(--cd);border-radius:5px;padding:4px 7px;font-size:11px;color:var(--tx);outline:none;font-family:inherit;width:80px" id="rtGoal" type="number" placeholder="如 800" onchange="S.rtGoal=this.value;autoSave();renderRT()"><span style="font-size:10px;color:var(--mu)">目前最高：<span id="rtBest" style="font-weight:500;color:var(--mb)">—</span></span></div>
+  <div class="rt-add-row" style="gap:5px">
+    <input id="rt-date" type="date" style="width:110px">
+    <input id="rt-grade" type="number" step="0.1" placeholder="單篇 Grade" style="width:75px">
+    <input id="rt-lexile" type="number" placeholder="單篇 Lexile" style="width:75px">
+    <input id="rt-score" type="number" placeholder="Score %" style="width:70px" min="0" max="100">
+    <input id="rt-avgG" type="number" step="0.1" placeholder="整體 G" style="width:75px">
+    <input id="rt-avgL" type="number" placeholder="整體 L" style="width:75px">
+    <button class="add-btn" onclick="addRT()">＋ 記錄</button>
+  </div>
+  <div class="rt-stats" id="rtStats"></div>
+  <div class="rt-chart-card"><div class="rt-chart-t">整體 Program Average Lexile 趨勢</div><div style="position:relative;height:160px"><canvas id="rtLexChart"></canvas></div></div>
+  <div class="card" style="padding:0;overflow:hidden"><table class="rt-table"><thead><tr><th>日期</th><th>單篇 Grade</th><th>單篇 Lexile</th><th>Score</th><th>整體 Avg G</th><th>整體 Avg L</th><th style="width:34px"></th></tr></thead><tbody id="rtBody"></tbody></table></div>
+</div>
+
+<div class="modal-ov" id="evMod"><div class="modal"><div class="modal-t" id="modT">新增事件</div><input class="m-inp" id="ev-title" placeholder="標題"><select class="m-sel" id="ev-cat"><option value="school">上課</option><option value="study">讀書</option><option value="work">上班</option><option value="side">副業</option><option value="other">其他</option></select><div id="evTimeArea"><div class="m-lbl">類型</div><div class="m-type-row"><button class="m-type-btn active" id="btnPlan" onclick="setEvT('plan')">計畫</button><button class="m-type-btn" id="btnActual" onclick="setEvT('actual')">實際</button></div><div class="m-lbl">時間</div><div class="m-time-row"><input class="m-inp" id="ev-start" type="time" style="flex:1;margin:0"><span style="font-size:10px;color:var(--mu);padding:0 4px">到</span><input class="m-inp" id="ev-end" type="time" style="flex:1;margin:0"></div></div><div class="m-lbl">備註</div><textarea class="m-inp" id="ev-note" placeholder="備註（可不填）" rows="2" style="resize:none"></textarea><div id="rptArea"><div class="m-lbl">固定每週重複</div><div class="rpt-days" id="rptDays"></div><div class="m-lbl">結束日期</div><input class="m-inp" id="rptEnd" type="date"></div><div class="m-btn-row"><button class="m-del" id="modDelBtn" style="display:none" onclick="deleteEv()">刪除</button><button class="m-cancel" onclick="closeModal()">取消</button><button class="m-save" onclick="saveEv()">儲存</button></div></div></div>
+<div class="modal-ov" id="sleepMod"><div class="modal"><div class="modal-t" id="sleepModT">睡眠記錄</div><div class="m-lbl">就寢時間</div><input class="m-inp" id="sl-bed" type="time"><div class="m-lbl">起床時間</div><input class="m-inp" id="sl-wake" type="time"><div class="m-lbl">輔助睡眠</div><div class="sleep-chk-grid"><label class="sleep-chk"><input type="checkbox" id="sl-med">藥物</label><label class="sleep-chk"><input type="checkbox" id="sl-mel">褪黑素</label><label class="sleep-chk"><input type="checkbox" id="sl-milk">助眠奶粉</label><label class="sleep-chk"><input type="checkbox" id="sl-oth">其他</label></div><input class="m-inp" id="sl-note" placeholder="備註"><div class="m-btn-row"><button class="m-cancel" onclick="document.getElementById('sleepMod').classList.remove('open')">取消</button><button class="m-save" onclick="saveSleep()">儲存</button></div></div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const HOL={'2026-01-01':'元旦','2026-01-02':'元旦補假','2026-02-17':'除夕','2026-02-18':'春節','2026-02-19':'春節','2026-02-20':'春節','2026-02-23':'和平紀念日補假','2026-02-28':'和平紀念日','2026-04-03':'兒童節補假','2026-04-04':'兒童節/清明','2026-05-01':'勞動節','2026-06-19':'端午節','2026-09-26':'中秋節','2026-10-09':'國慶補假','2026-10-10':'國慶日'};
+const MN=['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+const DN=['一','二','三','四','五','六','日'];
+const CATCOLS={school:'var(--cs)',study:'var(--cst)',work:'var(--cw)',side:'var(--csd)',other:'var(--co)'};
+// 已改為 24 小時制
+const HOURS=Array.from({length:24},(_,i)=>i);
+const TODAY=new Date();
+const ANN_CATS=[{key:'school',label:'學業／課程',col:'var(--cs)'},{key:'work',label:'工作／上班',col:'var(--cw)'},{key:'side',label:'副業計畫',col:'var(--csd)'},{key:'health',label:'健康／運動',col:'var(--ms)'},{key:'finance',label:'財務',col:'var(--mo)'},{key:'other',label:'其他',col:'var(--mt)'}];
+const SWOT_DATA=[{k:'S',label:'優勢 Strengths',guide:'你擁有哪些別人沒有的條件、技能或資源？'},{k:'W',label:'劣勢 Weaknesses',guide:'什麼習慣或弱點正在拖累你前進？'},{k:'O',label:'機會 Opportunities',guide:'現在有什麼外部環境、趨勢或人脈可以利用？'},{k:'T',label:'威脅 Threats',guide:'有什麼外部因素可能讓計畫失敗或受阻？'}];
+const Q_RV_DATA=[{k:'done',label:'已完成的事',guide:'完成了哪些你最驕傲的事？是什麼讓它成功？'},{k:'undone',label:'未完成的事',guide:'有什麼沒做到？背後真正的原因是什麼？'},{k:'learned',label:'最大的收穫',guide:'這個季度讓你最有成長感的事是什麼？'},{k:'next',label:'下季調整方向',guide:'下一季你想優先改變什麼？怎麼改？'}];
+const NG_KEYS=['concept','example','question','connect','apply','reflect','summary','extend'];
+const NG_LABELS=['關鍵概念','例子','疑問','連結','應用','反思','一句摘要','延伸閱讀'];
+const NG_DEF=['這段內容的核心概念是什麼？','有哪些具體例子或案例？','讀完後你還有什麼不懂的？','這和你之前學過的什麼有關？','這個知識可以怎麼用在現實中？','讀完後你有什麼新的想法？','用一句話總結精華','可以進一步探索哪些資料？'];
+const YR_Q=[{k:'achievement',label:'今年最大的成就',guide:'你最驕傲的事是什麼？是什麼讓它發生？'},{k:'lesson',label:'最重要的教訓',guide:'今年哪件事讓你學到了最多？下次會怎麼做？'},{k:'impact',label:'影響最深的事',guide:'今年發生哪件事對你影響最大最持久？'},{k:'decision',label:'最重要的決定',guide:'你做了哪個決定深刻改變了今年的方向？'},{k:'grateful',label:'最感激的事',guide:'今年你最感謝誰、最感謝什麼？'},{k:'2027',label:'對明年的期望',guide:'明年你最希望在哪個面向有突破？'}];
+
+// 各分類專屬的 Placeholder 引導文字
+const catPlaceholders = {
+  school: { f: '例：完成碩士論文研究...', h: '例：每週固定3天在圖書館寫作2小時...' },
+  work: { f: '例：爭取重要專案的主導權...', h: '例：每天早晨先吃青蛙（最難的任務）...' },
+  side: { f: '例：建立穩定的接案副業收入...', h: '例：每週末投入4小時開發個人品牌...' },
+  health: { f: '例：靠近理想身材（讓自己更有自信）...', h: '例：每週一三五 20:00 運動...' },
+  finance: { f: '例：存下6個月的緊急預備金...', h: '例：每週日晚上進行本週記帳與復盤...' },
+  other: { f: '例：拓展社交圈或學習新技能...', h: '例：每週參加一次線下交流活動...' }
+};
+
+let S={events:{},moNotes:{},qGoals:{},qReview:{},annGoals:{},qKpis:{},todos:{},wkGoal:{},studies:[],habits:[],hLog:{},sleepLog:{},moGoals:{},moDone:{},moUndone:{},moReflect:{},healthLog:{},waterLog:{},rtRecords:[],rtGoal:'',yrReview:{},curMo:TODAY.getMonth(),curWkStart:wkStart(TODAY),hMo:TODAY.getMonth(),curQ:1,evCtx:{},annIdentity:'',annFocusCat:{},annHabitsCat:{}};
+let evType='plan',sleepDk='',sleepChart=null,editEvCtx=null,ngCtx={ri:0,ii:0,tabIdx:0};
+let rtLexChart=null,yrHabitChart=null,yrSleepChart=null,yrHealthChart=null,moHealthChart=null;
+
+// ===== CLAUDE STORAGE SYNC =====
+const STORAGE_KEY='planner2026-v7';
+let GEMINI_KEY = localStorage.getItem('MY_API_KEY');
+if (!GEMINI_KEY) {
+  GEMINI_KEY = prompt('請輸入您的 Gemini API 金鑰（只需輸入一次，會存在本地端）：');
+  if (GEMINI_KEY) localStorage.setItem('MY_API_KEY', GEMINI_KEY);
+}
+const GEMINI_URL='https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+GEMINI_KEY;
+async function callGemini(prompt){
+  try {
+    const r=await fetch(GEMINI_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})});
+    const d=await r.json();
+    if (d.error) { alert("⚠️ Google AI 發生錯誤：\n" + d.error.message); throw new Error(d.error.message); }
+    return d.candidates?.[0]?.content?.parts?.[0]?.text||'';
+  } catch(e) {
+    alert("⚠️ 系統執行或連線錯誤：\n" + e.message); throw e;
+  }
+}
+let saveTimer=null;
+let syncStatusEl=null;
+
+function setSyncUI(state,msg){
+  if(!syncStatusEl)syncStatusEl=document.getElementById('syncStatus');
+  if(!syncStatusEl)return;
+  const dot=syncStatusEl.querySelector('.sync-dot');
+  const txt=syncStatusEl.querySelector('.sync-txt');
+  dot.style.animation='none';
+  if(state==='ok'){dot.style.background='var(--ms)';txt.textContent=msg||'已同步';}
+  else if(state==='saving'){dot.style.background='var(--mr)';dot.style.animation='pulse 1s infinite';txt.textContent='儲存中...';}
+  else if(state==='err'){dot.style.background='var(--mr)';txt.textContent=msg||'同步失敗';}
+  else{dot.style.background='var(--lt)';txt.textContent=msg||'載入中';}
+}
+
+const DB_URL = 'https://script.google.com/macros/s/AKfycbxeAXlkgR_WvjZvW5Q6DSc3fkiGFHNByoEGkZAg32mPn53ofaIpqdfcKOQcXF8HnnXD/exec';
+
+async function saveToSheets(){
+  setSyncUI('saving');
+  const json = JSON.stringify(S);
+  try { localStorage.setItem(STORAGE_KEY, json); } catch(e) {}
+  try {
+    await fetch(DB_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: json });
+    setSyncUI('ok','✓ 已同步至雲端');
+  } catch(e) {
+    setSyncUI('err','雲端失敗，已存本機');
+  }
+}
+
+async function loadFromSheets(){
+  setSyncUI('loading','雲端載入中...');
+  let loaded = null;
+  try {
+    const r = await fetch(DB_URL);
+    const text = await r.text();
+    if (text && text.trim().startsWith('{')) loaded = JSON.parse(text);
+  } catch(e) { console.log("雲端讀取失敗"); }
+  if (!loaded) {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) loaded = JSON.parse(raw);
+    } catch(e) {}
+  }
+  if (loaded) {
+    Object.assign(S, loaded);
+    if (S.curWkStart) S.curWkStart = new Date(S.curWkStart);
+    else S.curWkStart = wkStart(TODAY);
+    setSyncUI('ok','✓ 雲端資料已載入');
+  } else {
+    setSyncUI('ok','建立新資料庫');
+  }
+  renderYear(); buildWkSels(); renderStudy(); renderRT();
+}
+
+function autoSave(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(saveToSheets,1200);
+}
+
+function z(n){return String(n).padStart(2,'0')}
+function fmtD(d){return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`}
+function wkStart(d){let day=d.getDay();let diff=(day===0)?-6:1-day;let m=new Date(d);m.setDate(d.getDate()+diff);m.setHours(0,0,0,0);return m}
+function uid(){return Math.random().toString(36).slice(2,8)}
+function timeToMin(t){if(!t)return 0;const[h,m]=t.split(':').map(Number);return h*60+(m||0)}
+function getQ(m){return m<3?1:m<6?2:m<9?3:4}
+
+// ===== NOTION-STYLE EDITABLE =====
+function makeEditable(container, getValue, setValue, opts={}){
+  const {multiline=false, placeholder='點擊編輯...', onDelete=null, fontSize='11px'} = opts;
+  let editing = false;
+
+  function render(){
+    container.innerHTML='';
+    if(!editing){
+      const val = getValue();
+      const view = document.createElement('div');
+      view.className = 'e-view' + (val?'':' placeholder');
+      view.style.fontSize = fontSize;
+      view.textContent = val || placeholder;
+      view.onclick = ()=>{ editing=true; render(); };
+      container.appendChild(view);
+      if(onDelete){
+        view.onmouseenter=()=>{
+          if(!view.querySelector('.e-inline-del')){
+            const d=document.createElement('button');d.className='e-del e-inline-del';d.textContent='✕';d.style.cssText='position:absolute;top:0;right:0;font-size:9px';d.onclick=e=>{e.stopPropagation();if(confirm('確定刪除？'))onDelete();};
+            view.style.position='relative';view.appendChild(d);
+          }
+        };
+        view.onmouseleave=()=>{const d=view.querySelector('.e-inline-del');if(d)d.remove();};
+      }
+    } else {
+      const wrap = document.createElement('div');wrap.className='e-edit-wrap';
+      const inp = multiline ? document.createElement('textarea') : document.createElement('input');
+      inp.className = 'e-inp' + (multiline?' e-ta':'');
+      inp.style.fontSize = fontSize;
+      inp.value = getValue();
+      inp.placeholder = placeholder;
+      if(!multiline) inp.type='text';
+      setTimeout(()=>inp.focus(),10);
+      const actions = document.createElement('div');actions.className='e-actions';
+      const saveBtn = document.createElement('button');saveBtn.className='e-save';saveBtn.textContent='儲存';
+      saveBtn.onclick=()=>{ setValue(inp.value); editing=false; render(); autoSave(); };
+      const cancelBtn = document.createElement('button');cancelBtn.className='e-cancel';cancelBtn.textContent='取消';
+      cancelBtn.onclick=()=>{ editing=false; render(); };
+      actions.appendChild(saveBtn);actions.appendChild(cancelBtn);
+      if(onDelete){
+        const delBtn=document.createElement('button');delBtn.className='e-del';delBtn.textContent='刪除';
+        delBtn.onclick=()=>{ if(confirm('確定刪除？')){onDelete();} };
+        actions.appendChild(delBtn);
+      }
+      if(!multiline) inp.onkeydown=e=>{ if(e.isComposing)return; if(e.key==='Enter'){saveBtn.click();} if(e.key==='Escape'){cancelBtn.click();} };
+      wrap.appendChild(inp);wrap.appendChild(actions);
+      container.appendChild(wrap);
+    }
+  }
+  render();
+  return { refresh: render };
+}
+
+function showPg(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  document.getElementById('pg-'+id).classList.add('active');
+  if(btn)btn.classList.add('active');
+  ({year:renderYear,annual:renderAnnual,quarter:renderQuarter,month:renderMonth,week:renderWeek,study:renderStudy,habit:renderHabit,rt:renderRT,ninegrid:()=>renderNineGrid()})[id]?.();
+}
+
+// YEAR
+function renderYear(){
+  const g=document.getElementById('yrGrid');g.innerHTML='';
+  for(let m=0;m<12;m++){
+    const div=document.createElement('div');div.className='mo-mini';
+    div.onclick=()=>{S.curMo=m;showPg('month',null);};
+    const fd=new Date(2026,m,1).getDay(),dim=new Date(2026,m+1,0).getDate();
+    let off=(fd===0)?6:fd-1,rows='',day=1;
+    for(let w=0;w<6;w++){
+      if(day>dim)break;rows+='<tr>';
+      for(let d=0;d<7;d++){
+        let c=w*7+d-off+1;
+        if(c<1||c>dim){rows+='<td></td>';}
+        else{
+          const dk=`2026-${z(m+1)}-${z(c)}`;
+          const isT=TODAY.getFullYear()===2026&&TODAY.getMonth()===m&&TODAY.getDate()===c,isH=!!HOL[dk];
+          rows+=`<td class="${[isT?'t-today':'',isH?'t-hol':'',(S.events[dk]||[]).length?'has-ev':''].filter(Boolean).join(' ')}">${isT?`<span>${c}</span>`:c}${isH?'*':''}</td>`;
+        }
+      }
+      rows+='</tr>';day=Math.min(day+7,dim+1);
+    }
+    div.innerHTML=`<h3>${MN[m]}</h3><table class="mc"><thead><tr>${DN.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>`;
+    g.appendChild(div);
+  }
+}
+
+// ANNUAL
+function renderAnnual(){
+  const idArea = document.getElementById('annIdentity');
+  if(idArea) makeEditable(idArea, () => S.annIdentity || '', (v) => { S.annIdentity = v; autoSave(); }, { multiline: true, placeholder: '例：一個充滿活力、能掌控自己生活節奏的創作者。' });
+
+  const grid = document.getElementById('annFunnelGrid');
+  if(grid) {
+      grid.innerHTML = '';
+      if(!S.annFocusCat) S.annFocusCat = {};
+      if(!S.annHabitsCat) S.annHabitsCat = {};
+      ANN_CATS.forEach(cat => {
+          const div = document.createElement('div'); div.className = 'ann-cat';
+          div.innerHTML = `<div class="ann-top"><div class="cat-dot" style="background:${cat.col}"></div><span style="font-size:11px;font-weight:500">${cat.label}</span></div>
+          <div style="font-size:10px;color:var(--mu);margin:8px 0 2px">🎯 戰略重心 (目標與原因)</div><div id="af-${cat.key}"></div>
+          <div style="font-size:10px;color:var(--mu);margin:8px 0 2px">⚙️ 最小阻力習慣 (KPI)</div><div id="ah-${cat.key}"></div>`;
+          grid.appendChild(div);
+          
+          const p = catPlaceholders[cat.key];
+          makeEditable(document.getElementById(`af-${cat.key}`), () => S.annFocusCat[cat.key] || '', (v) => { S.annFocusCat[cat.key] = v; autoSave(); }, { multiline: true, placeholder: p.f });
+          makeEditable(document.getElementById(`ah-${cat.key}`), () => S.annHabitsCat[cat.key] || '', (v) => { S.annHabitsCat[cat.key] = v; autoSave(); }, { multiline: true, placeholder: p.h });
+      });
+  }
+
+  if(document.getElementById('yrRevBody') && document.getElementById('yrRevBody').style.display === 'block') {
+      renderAnnualReview();
+  }
+}
+
+function toggleYrReview() {
+  try {
+    const body = document.getElementById('yrRevBody');
+    const icon = document.getElementById('yrRevIcon');
+    if (body.style.display === 'none') {
+        body.style.display = 'block';
+        icon.textContent = '▲';
+        renderAnnualReview(); 
+    } else {
+        body.style.display = 'none';
+        icon.textContent = '▼';
+    }
+  } catch(e) {
+    alert("⚠️ 年度回顧展開發生錯誤：\n" + e.message);
+  }
+}
+
+function renderAnnualReview(){
+  S.habits = S.habits || [];
+  S.hLog = S.hLog || {};
+  S.sleepLog = S.sleepLog || {};
+  S.studies = S.studies || [];
+  S.rtRecords = S.rtRecords || [];
+  S.yrReview = S.yrReview || {};
+  S.healthLog = S.healthLog || {};
+
+  let totalDone=0,totalPossible=0;
+  for(let m=0;m<12;m++){const dim=new Date(2026,m+1,0).getDate();totalPossible+=S.habits.length*dim;for(let d=1;d<=dim;d++)S.habits.forEach((_,hi)=>{if(S.hLog[`2026-${z(m+1)}-${z(d)}-h${hi}`])totalDone++;});}
+  const pct=totalPossible?Math.round(totalDone/totalPossible*100):0;
+  let sleepSum=0,sleepCnt=0;
+  for(let m=0;m<12;m++){const dim=new Date(2026,m+1,0).getDate();for(let d=1;d<=dim;d++){const sl=S.sleepLog[`2026-${z(m+1)}-${z(d)}`];if(sl&&sl.hrs){sleepSum+=sl.hrs;sleepCnt++;}}}
+  const avgSleep=sleepCnt?Math.round(sleepSum/sleepCnt*10)/10:0;
+  const stDone=S.studies.filter(r=>r.items&&r.items.length&&r.items.every(i=>i.status==='done')).length;
+  document.getElementById('yrStats').innerHTML=`<div class="yr-stat"><div class="yr-stat-n">${pct}%</div><div class="yr-stat-l">習慣完成率</div></div><div class="yr-stat"><div class="yr-stat-n" style="color:var(--mb)">${avgSleep}h</div><div class="yr-stat-l">平均睡眠時數</div></div><div class="yr-stat"><div class="yr-stat-n" style="color:var(--mo)">${stDone}/${S.studies.length}</div><div class="yr-stat-l">讀書計畫完成</div></div><div class="yr-stat"><div class="yr-stat-n" style="color:var(--csd)">${S.rtRecords.length}</div><div class="yr-stat-l">RT 測驗次數</div></div>`;
+  
+  const hl = Array.from({length:12}, (_,i)=>(i+1)+'月');
+  const hData=Array.from({length:12},(_,m)=>{const dim=new Date(2026,m+1,0).getDate();let d=0,t=S.habits.length*dim;for(let day=1;day<=dim;day++)S.habits.forEach((_,hi)=>{if(S.hLog[`2026-${z(m+1)}-${z(day)}-h${hi}`])d++;});return t?Math.round(d/t*100):0;});
+  if(yrHabitChart)yrHabitChart.destroy();
+  yrHabitChart=new Chart(document.getElementById('yrHabitChart'),{type:'bar',data:{labels:hl,datasets:[{data:hData,backgroundColor:'rgba(143,168,154,.45)',borderColor:'#8fa89a',borderWidth:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:8}}},y:{min:0,max:100,ticks:{font:{size:8},callback:v=>v+'%'}}}}});
+  
+  const sData=Array.from({length:12},(_,m)=>{const dim=new Date(2026,m+1,0).getDate();let sum=0,cnt=0;for(let d=1;d<=dim;d++){const sl=S.sleepLog[`2026-${z(m+1)}-${z(d)}`];if(sl&&sl.hrs){sum+=sl.hrs;cnt++;}}return cnt?Math.round(sum/cnt*10)/10:null;});
+  if(yrSleepChart)yrSleepChart.destroy();
+  yrSleepChart=new Chart(document.getElementById('yrSleepChart'),{type:'line',data:{labels:hl,datasets:[{data:sData,borderColor:'#8fa0b4',backgroundColor:'rgba(143,160,180,.12)',fill:true,tension:.3,pointRadius:3,spanGaps:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:8}}},y:{min:4,max:12,ticks:{font:{size:8},stepSize:2,callback:v=>v+'h'}}}}});
+  
+  const yrQGrid=document.getElementById('yrQGrid');yrQGrid.innerHTML='';
+  YR_Q.forEach(q=>{
+    const card=document.createElement('div');card.className='yr-q-card';
+    card.innerHTML=`<div class="yr-q-lbl">${q.label}</div><div class="yr-q-guide">${q.guide}</div>`;
+    const editArea=document.createElement('div');
+    makeEditable(editArea,()=>S.yrReview[q.k]||'',(v)=>{S.yrReview[q.k]=v;},{multiline:true,placeholder:'寫下你的想法...',fontSize:'11px'});
+    card.appendChild(editArea);yrQGrid.appendChild(card);
+  });
+
+  // --- 繪製年度健康趨勢圖 ---
+  const wks = Object.keys(S.healthLog).sort();
+  let hLabels = wks.length ? wks.map(wk => wk.slice(5)) : ['年初', '年末'];
+  let wData = wks.length ? wks.map(wk => S.healthLog[wk].weight || null) : [null, null];
+  let fData = wks.length ? wks.map(wk => S.healthLog[wk].fat || null) : [null, null];
+  let mData = wks.length ? wks.map(wk => S.healthLog[wk].muscle || null) : [null, null];
+  
+  if(wks.length === 1) {
+    hLabels = [hLabels[0] + '(起)', hLabels[0] + '(迄)'];
+    wData = [wData[0], wData[0]];
+    fData = [fData[0], fData[0]];
+    mData = [mData[0], mData[0]];
+  }
+  
+  const tLen = hLabels.length;
+
+  if(yrHealthChart) yrHealthChart.destroy();
+  yrHealthChart = new Chart(document.getElementById('yrHealthChart'), {
+    type: 'line',
+    data: {
+      labels: hLabels,
+      datasets: [
+        { label: '體重(kg)', data: wData, borderColor: '#8fa89a', tension: 0.3, pointRadius: 4, spanGaps: true },
+        { label: '目標(47)', data: Array(tLen).fill(47), borderColor: 'rgba(143,168,154,0.8)', borderDash: [5,5], borderWidth: 2, pointRadius: 0 },
+        { label: '體脂(%)', data: fData, borderColor: '#c4a49b', tension: 0.3, pointRadius: 4, spanGaps: true },
+        { label: '目標(22)', data: Array(tLen).fill(22), borderColor: 'rgba(196,164,155,0.9)', borderDash: [5,5], borderWidth: 2, pointRadius: 0 },
+        { label: '肌肉(kg)', data: mData, borderColor: '#8fa0b4', tension: 0.3, pointRadius: 4, spanGaps: true },
+        { label: '目標(22)', data: Array(tLen).fill(22), borderColor: 'rgba(143,160,180,0.9)', borderDash: [2,6], borderWidth: 3, pointRadius: 0 }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { font: { size: 9 }, boxWidth: 10 } } }, scales: { x: { ticks: { font: { size: 8 } } }, y: { suggestedMin: 20, suggestedMax: 60, ticks: { font: { size: 8 } } } } }
+  });
+}
+
+async function runAI(){
+  const p=document.getElementById('aiInp').value.trim();if(!p)return;
+  const res=document.getElementById('aiRes');res.innerHTML='<span style="color:var(--mu);font-size:10px">AI 思考中...</span>';
+  try{
+    const promptText = `你是生涯規劃顧問。用戶關鍵字：「${p}」。用繁體中文幫用戶拆解2026年度目標，分六類：學業/課程、工作/上班、副業計畫、健康/運動、財務、其他。每類最多2個目標，每目標1句具體建議。格式：【類別】・目標。只輸出建議。`;
+    const text = await callGemini(promptText);
+    res.innerHTML=`<div style="font-size:10px;line-height:1.9;white-space:pre-wrap;margin-top:5px">${text}</div>`;
+  }catch(e){res.innerHTML='<span style="color:var(--mr);font-size:10px">連線失敗，請確認 API Key 是否正確</span>';}
+}
+
+// QUARTER
+function renderQuarter(){
+  const cont=document.getElementById('qConts');cont.innerHTML='';
+  for(let q=1;q<=4;q++){
+    const div=document.createElement('div');div.className='qc'+(q===S.curQ?' active':'');div.id='qc-'+q;
+    
+    const refCatsHtml = ANN_CATS.map(cat => {
+        const f = S.annFocusCat?.[cat.key];
+        const h = S.annHabitsCat?.[cat.key];
+        if(!f && !h) return '';
+        return `<div><div class="q-ann-cl"><div class="cat-dot" style="background:${cat.col}"></div>${cat.label}</div>
+                <div class="q-ann-item" style="color:var(--mu);margin-bottom:3px">🎯 ${f||'--'}</div>
+                <div class="q-ann-item" style="color:var(--lt)">⚙️ ${h||'--'}</div></div>`;
+    }).filter(Boolean).join('');
+    const refHtml = `<div class="q-ann-ref"><div class="q-ann-ref-t">📌 年計畫戰略參考</div><div class="q-ann-cats">${refCatsHtml||'<span style="font-size:9px;color:var(--lt)">尚未設定年計畫</span>'}</div></div>`;
+    
+    if(!S.qKpis[q])S.qKpis[q]={items:[],done:[],undone:[]};
+    const{items:kpiItems=[],done:kpiDone=[],undone:kpiUndone=[]}=S.qKpis[q];
+    const kpiAvail=kpiItems.filter(t=>!kpiDone.includes(t)&&!kpiUndone.includes(t));
+    const mkChip=(t,cls,from)=>`<div class="kpi-chip ${cls}" draggable="true" ondragstart="kpiDragStart(event,'${t.replace(/'/g,"\\'")}','${from}',${q})">${t}<button style="background:none;border:none;cursor:pointer;font-size:9px;color:inherit;opacity:.6;margin-left:3px" onclick="event.stopPropagation();delKpi(${q},'${t.replace(/'/g,"\\'")}')">✕</button></div>`;
+    const kpiHtml=`<div class="q-kpi-area"><div style="display:flex;gap:6px;margin-bottom:8px"><input class="kpi-add-inp" id="kpiInp-${q}" placeholder="新增 KPI 目標..." style="flex:1"><button class="add-btn" style="font-size:10px;padding:4px 10px" onclick="addKpi(${q})">＋</button></div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">${kpiAvail.map(t=>mkChip(t,'undone-kpi','avail')).join('')||'<span class="kpi-hint">新增KPI後，完成時拖到右側</span>'}</div><div class="q-kpi-cols"><div class="q-kpi-col"><div class="q-kpi-lbl">✕ 未完成</div><div class="kpi-dz" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="kpiDrop(event,'undone',${q})">${kpiUndone.map(t=>mkChip(t,'undone-kpi','undone')).join('')||'<span class="kpi-hint">拖入</span>'}</div></div><div class="q-kpi-col"><div class="q-kpi-lbl">✓ 已完成</div><div class="kpi-dz" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="kpiDrop(event,'done',${q})">${kpiDone.map(t=>mkChip(t,'done-kpi','done')).join('')||'<span class="kpi-hint">拖入</span>'}</div></div></div></div>`;
+    div.innerHTML=`${refHtml}<div class="sec-t" style="margin-bottom:8px">Q${q} KPI 目標追蹤</div>${kpiHtml}`;
+    const reviewWrap=document.createElement('div');reviewWrap.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px';
+    const rvDiv=document.createElement('div');
+    rvDiv.innerHTML=`<div class="sec-t" style="margin-bottom:7px">季回顧</div>`;
+    const rvGrid=document.createElement('div');rvGrid.className='q-rv-grid';
+    Q_RV_DATA.forEach(r=>{
+      const cell=document.createElement('div');cell.className='q-rv-cell';
+      cell.innerHTML=`<div class="q-rv-lbl">${r.label}</div><div class="q-rv-guide">${r.guide}</div>`;
+      const ea=document.createElement('div');
+      makeEditable(ea,()=>S.qReview[q+'-'+r.k]||'',(v)=>{S.qReview[q+'-'+r.k]=v;},{multiline:true,placeholder:'寫下你的想法...'});
+      cell.appendChild(ea);rvGrid.appendChild(cell);
+    });
+    rvDiv.appendChild(rvGrid);
+    const swDiv=document.createElement('div');
+    swDiv.innerHTML=`<div class="sec-t" style="margin-bottom:7px">SWOT</div>`;
+    const swGrid=document.createElement('div');swGrid.className='sw-grid';
+    SWOT_DATA.forEach(s=>{
+      const cell=document.createElement('div');cell.className='sw-cell';
+      cell.innerHTML=`<div class="sw-label">${s.label}</div><div class="sw-guide">${s.guide}</div>`;
+      const ea=document.createElement('div');
+      makeEditable(ea,()=>S.qReview[q+'-sw-'+s.k]||'',(v)=>{S.qReview[q+'-sw-'+s.k]=v;},{multiline:true,placeholder:'寫下你的想法...'});
+      cell.appendChild(ea);swGrid.appendChild(cell);
+    });
+    swDiv.appendChild(swGrid);
+    reviewWrap.appendChild(rvDiv);reviewWrap.appendChild(swDiv);div.appendChild(reviewWrap);
+    cont.appendChild(div);
+  }
+}
+function showQ(q,btn){S.curQ=q;document.querySelectorAll('.q-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.querySelectorAll('.qc').forEach(c=>c.classList.remove('active'));document.getElementById('qc-'+q).classList.add('active');}
+function addKpi(q){const inp=document.getElementById('kpiInp-'+q);const v=inp.value.trim();if(!v)return;if(!S.qKpis[q])S.qKpis[q]={items:[],done:[],undone:[]};S.qKpis[q].items.push(v);inp.value='';autoSave();renderQuarter();}
+function delKpi(q,text){if(!S.qKpis[q])return;['items','done','undone'].forEach(k=>{S.qKpis[q][k]=(S.qKpis[q][k]||[]).filter(t=>t!==text);});autoSave();renderQuarter();}
+let kpiDragSrc={};
+function kpiDragStart(e,text,from,q){kpiDragSrc={text,from,q};e.dataTransfer.effectAllowed='move';}
+function kpiDrop(e,zone,q){
+  e.preventDefault();document.querySelectorAll('.kpi-dz').forEach(z=>z.classList.remove('over'));
+  const{text,from}=kpiDragSrc;if(!S.qKpis[q])return;
+  if(from==='done')S.qKpis[q].done=S.qKpis[q].done.filter(t=>t!==text);
+  if(from==='undone')S.qKpis[q].undone=S.qKpis[q].undone.filter(t=>t!==text);
+  if(zone==='done'&&!S.qKpis[q].done.includes(text))S.qKpis[q].done.push(text);
+  if(zone==='undone'&&!S.qKpis[q].undone.includes(text))S.qKpis[q].undone.push(text);
+  autoSave();renderQuarter();
+}
+
+// MONTH
+const REFLECT_SECS=[{key:'other',label:'其他',guide:'還有什麼值得記錄的事情？'},{key:'learned',label:'學到的事',guide:'這個月有什麼新的體悟或技能？'},{key:'reflect',label:'需要自省',guide:'有什麼地方沒做好？是什麼決定或習慣導致這個結果？'}];
+function renderMonth(){
+  const moSel=document.getElementById('moSel');
+  moSel.innerHTML=MN.map((m,i)=>`<option value="${i}" ${i===S.curMo?'selected':''}>${m}</option>`).join('');
+  const y=2026,m=S.curMo,mk=`${y}-${m}`,curQ=getQ(m);
+  const kpis = S.qKpis[curQ]?.items || []; const qRefRows = kpis.length ? kpis.map(k => `<div class="q-ref-cat-row"><div class="q-ref-goal" style="padding-left:0;font-size:10px">・${k}</div></div>`).join('') : '<span style="font-size:9px;color:var(--lt)">本季尚未設定 KPI</span>';
+  const sb=document.getElementById('moSb');sb.innerHTML='';
+  const c1=document.createElement('div');c1.className='m-sb-card';
+  c1.innerHTML=`<div class="m-sb-lbl">Q${curQ} 季目標參考</div><div class="q-ref-inline">${qRefRows||'<span style="font-size:9px;color:var(--lt)">尚未填寫季目標</span>'}</div><div class="m-sb-lbl" style="margin-top:4px">本月目標</div>`;
+  ANN_CATS.forEach(cat=>{
+    const goals=S.moGoals[mk+'-'+cat.key]||[{text:''}];
+    goals.forEach((gobj,i)=>{
+      const row=document.createElement('div');row.className='mo-goal-row';
+      row.style.display='flex';row.style.alignItems='flex-start';row.style.gap='4px';
+      const dot=document.createElement('div');dot.className='cat-dot';dot.style.cssText=`background:${cat.col};margin-top:6px;flex-shrink:0`;
+      const ea=document.createElement('div');ea.style.flex='1';
+      makeEditable(ea,()=>gobj.text||'',(v)=>{if(!S.moGoals[mk+'-'+cat.key])S.moGoals[mk+'-'+cat.key]=[{text:''}];S.moGoals[mk+'-'+cat.key][i]={text:v};renderMonth();},{placeholder:`${cat.label}本月小目標...`,onDelete:()=>{if(S.moGoals[mk+'-'+cat.key])S.moGoals[mk+'-'+cat.key].splice(i,1);renderMonth();}});
+      row.appendChild(dot);row.appendChild(ea);c1.appendChild(row);
+    });
+  });
+  const addBtn=document.createElement('button');addBtn.className='add-goal-btn';addBtn.style.marginTop='4px';addBtn.textContent='＋ 新增目標列';
+  addBtn.onclick=()=>{ANN_CATS.forEach(cat=>{if(!S.moGoals[mk+'-'+cat.key])S.moGoals[mk+'-'+cat.key]=[{text:''}];else S.moGoals[mk+'-'+cat.key].push({text:''});});autoSave();renderMonth();};
+  c1.appendChild(addBtn);sb.appendChild(c1);
+  const allTexts=ANN_CATS.flatMap(cat=>(S.moGoals[mk+'-'+cat.key]||[]).map(g=>g.text).filter(t=>t));
+  const done=S.moDone[mk]||[],undone=S.moUndone[mk]||[];
+  const avail=allTexts.filter(t=>!done.includes(t)&&!undone.includes(t));
+  const chipHtml=(items,cls)=>items.map(t=>`<div class="drag-chip ${cls}" draggable="true" ondragstart="dragStart(event,'${t.replace(/'/g,"\\'")}','${cls}')">${t}</div>`).join('');
+  [['目標清單',avail,'','先填寫本月目標','拖曳到下方標記狀態'],['已完成 ✓',done,'done-chip','拖入已完成的目標','是什麼讓目標得以完成？什麼習慣帶來了結果？'],['未完成 ✕',undone,'undone-chip','拖入未完成的目標','是什麼阻礙了完成？下個月如何調整？']].forEach(([lbl,items,cls,hint,guide],ci)=>{
+    const c=document.createElement('div');c.className='m-sb-card';
+    c.innerHTML=`<div class="m-sb-lbl">${lbl}</div>`;
+    if(ci===0){c.innerHTML+=`<div style="font-size:8px;color:var(--lt);margin-bottom:5px">${guide}</div><div style="display:flex;flex-wrap:wrap;gap:3px">${items.length?chipHtml(items,''):'<span class="dz-hint">'+hint+'</span>'}</div>`;} else {
+      c.innerHTML+=`<div class="drag-zone" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="dropTo(event,'${ci===1?'done':'undone'}','${mk}')">${items.length?chipHtml(items,cls):'<span class="dz-hint">'+hint+'</span>'}</div><div style="font-size:8px;color:var(--lt);margin-top:5px;line-height:1.5">${guide}</div>`;
+    }
+    sb.appendChild(c);
+  });
+  document.getElementById('calHead').innerHTML=DN.map(d=>`<th>${d}</th>`).join('');
+  const body=document.getElementById('calBody');body.innerHTML='';
+  const fd=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate();
+  let off=(fd===0)?6:fd-1,day=1;
+  for(let w=0;w<6;w++){
+    if(day>dim)break;const tr=document.createElement('tr');
+    for(let d2=0;d2<7;d2++){
+      const td=document.createElement('td');const c=w*7+d2-off+1;
+      if(c<1||c>dim){td.className='empty';}
+      else{
+        const dk=`${y}-${z(m+1)}-${z(c)}`;const isT=TODAY.getFullYear()===y&&TODAY.getMonth()===m&&TODAY.getDate()===c;const isH=!!HOL[dk];
+        td.className=isT?'today-c':isH?'hol-c':'';
+        const dn=document.createElement('div');dn.className='dn';dn.textContent=c;td.appendChild(dn);
+        if(isH){const hl=document.createElement('span');hl.className='hol-lbl';hl.textContent=HOL[dk];td.appendChild(hl);}
+        (S.events[dk]||[]).forEach((ev,ei)=>{const ch=document.createElement('div');ch.className=`ev-chip chip-${ev.cat}`;ch.textContent=(ev.start?ev.start+' ':'')+ev.title;ch.onclick=e=>{e.stopPropagation();openEditModal(dk,ei);};td.appendChild(ch);});
+        td.onclick=()=>openAddModal('cal',dk);day=c;
+      }
+      tr.appendChild(td);
+    }
+    body.appendChild(tr);day++;
+  }
+  const reflectEl=document.getElementById('moReflect');reflectEl.innerHTML='';
+  REFLECT_SECS.forEach(s=>{
+    const card=document.createElement('div');card.className='m-reflect-card';
+    card.innerHTML=`<div class="m-reflect-lbl">${s.label}</div><div class="m-reflect-guide">${s.guide}</div>`;
+    const ea=document.createElement('div');
+    makeEditable(ea,()=>S.moReflect[mk+'-'+s.key]||'',(v)=>{S.moReflect[mk+'-'+s.key]=v;},{multiline:true,placeholder:'寫下你的想法...'});
+    card.appendChild(ea);reflectEl.appendChild(card);
+  });
+}
+function chgMo(dir){S.curMo=(S.curMo+dir+12)%12;renderMonth();}
+let dragSrc={};
+function dragStart(e,text,from){dragSrc={text,from};e.dataTransfer.effectAllowed='move';}
+function dropTo(e,zone,mk){
+  e.preventDefault();document.querySelectorAll('.drag-zone').forEach(z=>z.classList.remove('over'));
+  const{text,from}=dragSrc;
+  if(from==='done-chip')S.moDone[mk]=(S.moDone[mk]||[]).filter(t=>t!==text);
+  if(from==='undone-chip')S.moUndone[mk]=(S.moUndone[mk]||[]).filter(t=>t!==text);
+  if(zone==='done'){if(!S.moDone[mk])S.moDone[mk]=[];if(!S.moDone[mk].includes(text))S.moDone[mk].push(text);}
+  if(zone==='undone'){if(!S.moUndone[mk])S.moUndone[mk]=[];if(!S.moUndone[mk].includes(text))S.moUndone[mk].push(text);}
+  autoSave();renderMonth();
+}
+
+// WEEK
+function buildWkSels(){
+  const mSel=document.getElementById('wkMoSel');const curMo=S.curWkStart.getMonth();
+  mSel.innerHTML=MN.map((m,i)=>`<option value="${i}" ${i===curMo?'selected':''}>${m}</option>`).join('');
+  buildWkWkSel(curMo);
+}
+function buildWkWkSel(mo){
+  const sel=document.getElementById('wkWkSel');sel.innerHTML='';const seen=new Set();
+  for(let d=new Date(2026,mo,1);d.getMonth()<=mo&&d.getFullYear()===2026;d.setDate(d.getDate()+1)){
+    const ws=wkStart(new Date(d));const k=fmtD(ws);
+    if(!seen.has(k)){seen.add(k);const we=new Date(ws);we.setDate(ws.getDate()+6);const o=document.createElement('option');o.value=k;o.textContent=`${ws.getMonth()+1}/${ws.getDate()} – ${we.getMonth()+1}/${we.getDate()}`;if(k===fmtD(S.curWkStart))o.selected=true;sel.appendChild(o);}
+  }
+}
+function onWkMoChg(){const mo=parseInt(document.getElementById('wkMoSel').value);buildWkWkSel(mo);const f=document.getElementById('wkWkSel').options[0];if(f){S.curWkStart=new Date(f.value+'T00:00:00');renderWeek();}}
+function onWkWkChg(){const v=document.getElementById('wkWkSel').value;if(v){S.curWkStart=new Date(v+'T00:00:00');renderWeek();}}
+function goToday(){S.curWkStart=wkStart(TODAY);buildWkSels();renderWeek();}
+
+function renderWeek(){
+  buildWkSels();
+  const ws=S.curWkStart;const wk=fmtD(ws);
+  const goalArea=document.getElementById('wkGoalArea');
+  makeEditable(goalArea,()=>S.wkGoal[wk]||'',(v)=>{S.wkGoal[wk]=v;},{multiline:true,placeholder:'輸入本週目標...'});
+  const hl=S.healthLog[wk]||{};
+  document.getElementById('healthBar').innerHTML=['體重(kg)','體脂(%)','肌肉量(kg)'].map((lbl,i)=>{const k=['weight','fat','muscle'][i];return `<div class="health-field"><div class="health-lbl">${lbl}</div><input class="health-inp" type="number" step="0.1" value="${hl[k]||''}" placeholder="—" onchange="setHealth('${wk}','${k}',this.value)"></div>`;}).join('');
+  renderTodos(wk);renderWkHabits(ws);
+  const tl=document.getElementById('wkTl');tl.innerHTML='';
+  tl.style.gridTemplateColumns='34px repeat(7,1fr)';
+  const corner=document.createElement('div');corner.className='tl-corner';tl.appendChild(corner);
+  for(let d=0;d<7;d++){
+    const dayD=new Date(ws);dayD.setDate(ws.getDate()+d);const dk=fmtD(dayD);const isT=dk===fmtD(TODAY);const isH=!!HOL[dk];
+    const th=document.createElement('div');th.className='tl-th'+(isT?' today-h':'')+(isH?' hol-h':'');
+    th.innerHTML=`${DN[d]}<br><span style="font-weight:400">${dayD.getMonth()+1}/${dayD.getDate()}</span>${isH?`<br><span style="font-size:7px;color:var(--mr)">${HOL[dk]}</span>`:''}`;
+    tl.appendChild(th);
+  }
+  HOURS.forEach(h=>{
+    const lbl=document.createElement('div');lbl.className='tl-lbl';lbl.textContent=`${h}:00`;tl.appendChild(lbl);
+    for(let d=0;d<7;d++){
+      const dayD=new Date(ws);dayD.setDate(ws.getDate()+d);const dk=fmtD(dayD);const isH=!!HOL[dk];
+      const cell=document.createElement('div');cell.className='tl-cell'+(isH?' hol-cell':'');
+      cell.onclick=()=>openAddModal('week',dk,h);
+      const evs=(S.events[dk]||[]).filter(ev=>ev.start&&ev.end&&timeToMin(ev.start)<(h+1)*60&&timeToMin(ev.end)>h*60);
+      const plans=evs.filter(ev=>ev.type==='plan'||!ev.type);const actuals=evs.filter(ev=>ev.type==='actual');
+      [...plans,...actuals].forEach(ev=>{
+        const sm=timeToMin(ev.start),em=timeToMin(ev.end),slotS=h*60,slotE=(h+1)*60;
+        const top=Math.max(0,(sm-slotS))/60*44;const ht=(Math.min(em,slotE)-Math.max(sm,slotS))/60*44;
+        if(ht<=0)return;
+        const isPlan=ev.type==='plan'||!ev.type;const hasBoth=isPlan&&actuals.some(a=>a.title===ev.title);
+        const blk=document.createElement('div');blk.className='ev-blk '+(isPlan?'plan':'actual');
+        blk.style.background=CATCOLS[ev.cat]||'var(--co)';
+        if(isPlan){blk.style.left='2px';blk.style.right=hasBoth?'51%':'2px';}else{blk.style.left='50%';blk.style.right='2px';}
+        blk.style.top=top+'px';blk.style.height=ht+'px';
+        if(sm>=slotS)blk.textContent=`${ev.start} ${ev.title}`;
+        if(ev.note)blk.title=ev.note;
+        blk.onclick=e=>{e.stopPropagation();openEditModal(dk,(S.events[dk]||[]).indexOf(ev));};
+        cell.appendChild(blk);
+      });
+      tl.appendChild(cell);
+    }
+  });
+  const botLbl=document.createElement('div');botLbl.className='tl-bottom-lbl';botLbl.innerHTML='<span>飲水</span><span>睡眠</span>';tl.appendChild(botLbl);
+  for(let d=0;d<7;d++){
+    const dayD=new Date(ws);dayD.setDate(ws.getDate()+d);const dk=fmtD(dayD);
+    const sl=S.sleepLog[dk];const hasSlData=sl&&sl.bed;
+    const bot=document.createElement('div');bot.className='tl-day-bottom';
+    const wVal=S.waterLog[dk]||0; const wCol=wVal>=2000?'var(--ms)':(wVal>0?'var(--mr)':'inherit');
+    bot.innerHTML=`<input class="bottom-inp" style="color:${wCol};font-weight:${wVal>0?'500':'normal'}" type="number" step="100" value="${S.waterLog[dk]||''}" placeholder="ml" title="飲水量(ml)" onchange="S.waterLog['${dk}']=this.value;autoSave();renderWeek();"><button class="sleep-mini-btn ${hasSlData?'has-data':''}" onclick="openSleepModal('${dk}')">${hasSlData?sl.hrs+'h':'記錄'}</button>`;
+    tl.appendChild(bot);
+  }
+}
+function setHealth(wk,k,v){S.healthLog = S.healthLog || {};if(!S.healthLog[wk])S.healthLog[wk]={};S.healthLog[wk][k]=v;autoSave();}
+function renderWkHabits(ws){
+  const el=document.getElementById('wkHabits');
+  if(!S.habits.length){el.innerHTML='<div style="font-size:9px;color:var(--lt)">至習慣追蹤新增習慣</div>';return;}
+  el.innerHTML=S.habits.map((h,hi)=>`<div class="hm-row"><div class="hm-name">${h.name}</div><div class="hm-dots">${Array.from({length:7},(_,d)=>{const day=new Date(ws);day.setDate(ws.getDate()+d);const k=fmtD(day)+'-h'+hi;return `<div class="hm-dot ${S.hLog[k]?'done':''}" onclick="S.hLog['${fmtD(day)}-h${hi}']=!S.hLog['${fmtD(day)}-h${hi}'];this.classList.toggle('done');autoSave();" title="${DN[d]}"></div>`;}).join('')}</div></div>`).join('');
+}
+function renderTodos(wk){
+  const list=document.getElementById('todoList');list.innerHTML='';
+  (S.todos[wk]||[]).forEach((t,i)=>{
+    const row=document.createElement('div');row.className='todo-row';
+    const chk=document.createElement('input');chk.type='checkbox';chk.className='todo-chk';chk.checked=!!t.done;
+    chk.onchange=()=>{S.todos[wk][i].done=chk.checked;autoSave();renderTodos(wk);};
+    const ea=document.createElement('div');ea.style.flex='1';
+    makeEditable(ea,()=>t.text||'',(v)=>{S.todos[wk][i].text=v;},{placeholder:'待辦事項...',fontSize:'10px',onDelete:()=>{S.todos[wk].splice(i,1);renderTodos(wk);}});
+    ea.style.textDecoration=t.done?'line-through':'none';
+    ea.style.color=t.done?'var(--lt)':'inherit';
+    row.appendChild(chk);row.appendChild(ea);
+    if(t.src){const src=document.createElement('span');src.className='todo-src';src.textContent=t.src;row.appendChild(src);}
+    list.appendChild(row);
+  });
+}
+function addTodo(){const wk=fmtD(S.curWkStart);if(!S.todos[wk])S.todos[wk]=[];S.todos[wk].push({text:'新待辦',done:false});autoSave();renderTodos(wk);}
+
+// MODAL
+function setEvT(t){evType=t;document.getElementById('btnPlan').classList.toggle('active',t==='plan');document.getElementById('btnActual').classList.toggle('active',t==='actual');}
+function openAddModal(mode,dk,h){
+  editEvCtx=null;evType='plan';setEvT('plan');S.evCtx={mode,dk,h};
+  document.getElementById('modT').textContent='新增事件';
+  document.getElementById('ev-title').value='';document.getElementById('ev-cat').value='school';
+  document.getElementById('ev-start').value=h!=null?`${z(h)}:00`:'';document.getElementById('ev-end').value=h!=null?`${z(h+1)}:00`:'';
+  document.getElementById('ev-note').value='';document.getElementById('rptEnd').value='';
+  document.getElementById('rptDays').innerHTML=DN.map((d,i)=>`<button class="rpt-d" data-d="${i}" onclick="this.classList.toggle('sel')">${d}</button>`).join('');
+  document.getElementById('evTimeArea').style.display=mode==='week'?'block':'none';
+  document.getElementById('modDelBtn').style.display='none';document.getElementById('evMod').classList.add('open');
+}
+function openEditModal(dk,idx){
+  const ev=(S.events[dk]||[])[idx];if(!ev)return;
+  editEvCtx={dk,idx};evType=ev.type||'plan';setEvT(evType);S.evCtx={mode:'week',dk};
+  document.getElementById('modT').textContent='編輯／刪除事件';document.getElementById('ev-title').value=ev.title||'';
+  document.getElementById('ev-cat').value=ev.cat||'school';document.getElementById('ev-start').value=ev.start||'';document.getElementById('ev-end').value=ev.end||'';
+  document.getElementById('ev-note').value=ev.note||'';document.getElementById('rptEnd').value='';
+  document.getElementById('rptDays').innerHTML=DN.map((d,i)=>`<button class="rpt-d" data-d="${i}" onclick="this.classList.toggle('sel')">${d}</button>`).join('');
+  document.getElementById('evTimeArea').style.display='block';document.getElementById('modDelBtn').style.display='block';document.getElementById('evMod').classList.add('open');
+}
+function closeModal(){document.getElementById('evMod').classList.remove('open');editEvCtx=null;}
+function deleteEv(){
+  if(!editEvCtx)return;const{dk,idx}=editEvCtx;const ev=(S.events[dk]||[])[idx];if(!ev)return;
+  if(ev.rptGroup&&confirm('刪除「全部」重複場次？確定=全部，取消=只刪這天')){Object.keys(S.events).forEach(k=>{S.events[k]=(S.events[k]||[]).filter(e=>e.rptGroup!==ev.rptGroup);});}
+  else{(S.events[dk]||[]).splice(idx,1);}
+  autoSave();
+  closeModal();if(document.getElementById('pg-month').classList.contains('active'))renderMonth();if(document.getElementById('pg-week').classList.contains('active'))renderWeek();
+}
+function saveEv(){
+  const title=document.getElementById('ev-title').value.trim();if(!title){closeModal();return;}
+  const cat=document.getElementById('ev-cat').value,start=document.getElementById('ev-start').value,end=document.getElementById('ev-end').value,note=document.getElementById('ev-note').value;
+  const rptEndVal=document.getElementById('rptEnd').value;
+  const selDays=[...document.querySelectorAll('#rptDays .rpt-d.sel')].map(b=>parseInt(b.dataset.d));
+  const rptGroup=selDays.length?uid():null;
+  const ev={id:uid(),title,cat,start,end,note,type:evType,rptGroup};
+  if(editEvCtx){(S.events[editEvCtx.dk]||[]).splice(editEvCtx.idx,1,ev);}
+  else{if(!S.events[S.evCtx.dk])S.events[S.evCtx.dk]=[];S.events[S.evCtx.dk].push(ev);}
+  if(selDays.length&&rptGroup){
+    const endDate=rptEndVal?new Date(rptEndVal+'T00:00:00'):new Date(2026,11,31);
+    for(let cur=new Date(2026,0,1);cur<=endDate;cur.setDate(cur.getDate()+1)){
+      const ourDay=(cur.getDay()+6)%7;
+      if(selDays.includes(ourDay)){const k=fmtD(cur);if(k===S.evCtx.dk)continue;if(!S.events[k])S.events[k]=[];if(!S.events[k].find(e=>e.rptGroup===rptGroup))S.events[k].push({...ev,id:uid()});}
+    }
+  }
+  autoSave();
+  closeModal();if(document.getElementById('pg-year').classList.contains('active'))renderYear();if(document.getElementById('pg-month').classList.contains('active'))renderMonth();if(document.getElementById('pg-week').classList.contains('active'))renderWeek();
+}
+
+// STUDY
+async function stAiImport(){
+  const txt=document.getElementById('stAiTa').value.trim();if(!txt)return;
+  const res=document.getElementById('stAiRes');res.textContent='AI 辨識中...';
+  try{
+    const promptText = `從以下文字辨識讀書計畫，輸出純JSON陣列，每項包含subject、week、cat（school/study/side）、items（字串陣列）。只輸出JSON。\n\n${txt}`;
+    const text = await callGemini(promptText);
+    const cleanText = text.replace(/```json|```/g,'').trim();
+    const arr=JSON.parse(cleanText);
+    arr.forEach(row=>{S.studies.push({subject:row.subject||'',week:row.week||'',cat:row.cat||'study',items:(row.items||[]).map(t=>({text:t,status:'none',ngTabs:[]})),expanded:true});});
+    res.textContent=`✓ 已匯入 ${arr.length} 筆`;autoSave();renderStudy();
+  }catch(e){res.textContent='辨識失敗，請檢查內容或重試';}
+}
+function addStudy(){
+  const sub=document.getElementById('s-sub').value.trim();if(!sub)return;
+  S.studies.push({subject:sub,week:document.getElementById('s-wk').value.trim(),cat:document.getElementById('s-cat').value,items:[],expanded:true});
+  document.getElementById('s-sub').value='';document.getElementById('s-wk').value='';autoSave();renderStudy();
+}
+function renderStudy(){
+  S.studies.sort((a,b) => String(a.week||'').localeCompare(String(b.week||'')));
+  const body=document.getElementById('stBody');body.innerHTML='';
+  S.studies.forEach((r,ri)=>{
+    const total=r.items.length,doneN=r.items.filter(i=>i.status==='done').length;
+    const pct=total?Math.round(doneN/total*100):0,allDone=total>0&&doneN===total;
+    const tr=document.createElement('tr');
+    const subTd=document.createElement('td');subTd.style.verticalAlign='top';
+    const catWrap=document.createElement('div');catWrap.style.cssText='display:flex;flex-direction:column;gap:4px';
+    const bdgEl=document.createElement('span');bdgEl.className=`bdg bdg-${r.cat}`;bdgEl.textContent=r.subject||'（未填）';bdgEl.style.cursor='pointer';bdgEl.title='點擊編輯科目名稱';
+    bdgEl.onclick=()=>{const v=prompt('編輯科目名稱：',r.subject||'');if(v!==null){S.studies[ri].subject=v;autoSave();renderStudy();}};
+    catWrap.appendChild(bdgEl);subTd.appendChild(catWrap);tr.appendChild(subTd);
+    const wkTd=document.createElement('td');wkTd.style.verticalAlign='top';
+    const wkSpan=document.createElement('div');wkSpan.style.cssText='font-size:9px;color:var(--mu);cursor:pointer;padding:2px 4px;border-radius:3px';wkSpan.textContent=r.week||'點擊填入週次';wkSpan.title='點擊編輯週次';
+    wkSpan.onmouseenter=()=>wkSpan.style.background='rgba(143,160,180,.1)';wkSpan.onmouseleave=()=>wkSpan.style.background='';
+    wkSpan.onclick=()=>{const v=prompt('編輯週次：',r.week||'');if(v!==null){S.studies[ri].week=v;autoSave();renderStudy();}};
+    wkTd.appendChild(wkSpan);tr.appendChild(wkTd);
+    const itemTd=document.createElement('td');itemTd.style.verticalAlign='top';
+    if(r.expanded){
+      const ul=document.createElement('ul');ul.className='st-items';
+      r.items.forEach((it,ii)=>{
+        const li=document.createElement('li');li.className='st-item';
+        const icon=document.createElement('div');icon.className=`st-icon ${it.status||'none'}`;icon.textContent=it.status==='done'?'✓':it.status==='miss'?'✕':'△';
+        icon.onclick=(e)=>{e.stopPropagation();cycleStatus(ri,ii);};
+        const txtSpan=document.createElement('span');txtSpan.style.cssText='flex:1;font-size:10px;cursor:pointer;padding:1px 3px;border-radius:3px;min-width:0;word-break:break-all';txtSpan.textContent=it.text||'（點擊編輯）';
+        txtSpan.onmouseenter=()=>txtSpan.style.background='rgba(143,160,180,.1)';txtSpan.onmouseleave=()=>txtSpan.style.background='';
+        txtSpan.onclick=(e)=>{e.stopPropagation();const v=prompt('編輯讀書項目：',it.text||'');if(v!==null){S.studies[ri].items[ii].text=v;autoSave();checkDeadlines();renderStudy();}};
+        const ngBtn=document.createElement('button');ngBtn.className='st-item-ng-btn';ngBtn.textContent='九宮格'+(it.ngTabs&&it.ngTabs.length?' ('+it.ngTabs.length+')':'');
+        ngBtn.onclick=(e)=>{e.stopPropagation();openNineGrid(ri,ii);};
+        const delBtn=document.createElement('button');delBtn.className='row-del-btn';delBtn.textContent='✕';delBtn.title='刪除此項目';
+        delBtn.onclick=(e)=>{e.stopPropagation();S.studies[ri].items.splice(ii,1);autoSave();renderStudy();};
+        li.appendChild(icon);li.appendChild(txtSpan);li.appendChild(ngBtn);li.appendChild(delBtn);ul.appendChild(li);
+      });
+      itemTd.appendChild(ul);
+    }
+    const addItemBtn=document.createElement('button');addItemBtn.style.cssText='font-size:9px;color:var(--mu);background:none;border:none;cursor:pointer;margin-top:4px';addItemBtn.textContent='＋ 項目';
+    addItemBtn.onclick=(e)=>{e.stopPropagation();addItem(ri);};
+    const expBtn=document.createElement('button');expBtn.className='exp-btn';expBtn.textContent=r.expanded?'▲':'▼';
+    expBtn.onclick=(e)=>{e.stopPropagation();S.studies[ri].expanded=!S.studies[ri].expanded;renderStudy();};
+    itemTd.appendChild(addItemBtn);itemTd.appendChild(document.createTextNode(' '));itemTd.appendChild(expBtn);tr.appendChild(itemTd);
+    const pbTd=document.createElement('td');pbTd.style.verticalAlign='top';
+    pbTd.innerHTML=`<div class="pb"><div class="pf" style="width:${pct}%"></div></div><div style="font-size:8px;color:var(--mu);text-align:center;margin-top:2px">${pct}%</div>`;
+    tr.appendChild(pbTd);
+    const doneTd=document.createElement('td');doneTd.style.cssText='text-align:center;vertical-align:top';
+    doneTd.innerHTML=`<span style="font-size:${allDone?'14px':'11px'};color:${allDone?'var(--ms)':'var(--lt)'}">${allDone?'✓':'○'}</span>`;
+    tr.appendChild(doneTd);
+    const delTd=document.createElement('td');delTd.style.cssText='text-align:center;vertical-align:top';
+    const delRowBtn=document.createElement('button');delRowBtn.className='row-del-btn';delRowBtn.textContent='✕';delRowBtn.title='刪除整門課程';
+    delRowBtn.onclick=()=>{if(confirm(`確定刪除「${r.subject}」？`)){S.studies.splice(ri,1);autoSave();renderStudy();}};
+    delTd.appendChild(delRowBtn);tr.appendChild(delTd);body.appendChild(tr);
+  });
+}
+function cycleStatus(ri,ii){const s=S.studies[ri].items[ii].status||'none';S.studies[ri].items[ii].status=s==='none'?'done':s==='done'?'miss':'none';autoSave();renderStudy();checkDeadlines();}
+function addItem(ri){S.studies[ri].items.push({text:'新項目',status:'none',ngTabs:[]});autoSave();renderStudy();}
+function checkDeadlines(){
+  const wk=fmtD(S.curWkStart);S.studies.forEach(r=>{const missing=r.items.filter(i=>i.status!=='done'&&i.text);if(!missing.length)return;if(!S.todos[wk])S.todos[wk]=[];const src=`📚${r.subject}`;if(!S.todos[wk].find(t=>t.src===src))S.todos[wk].push({text:`未完成：${missing.map(i=>i.text).join('、')}`,done:false,src});});
+  if(document.getElementById('pg-week').classList.contains('active'))renderTodos(fmtD(S.curWkStart));
+}
+
+// NINE GRID
+function openNineGrid(ri,ii){
+  try {
+    ngCtx={ri,ii,tabIdx:0};
+    const item=S.studies[ri].items[ii];if(!item.ngTabs)item.ngTabs=[];
+    document.getElementById('ngTitle').textContent=`九宮格 — ${S.studies[ri].subject}：${item.text||'（未命名）'}`;
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+    document.getElementById('pg-ninegrid').classList.add('active');
+    renderNgTabs();renderNineGrid();
+  } catch(e) { alert("⚠️ 九宮格發生錯誤：\n" + e.message); }
+}
+function renderNgTabs(){
+  const item=S.studies[ngCtx.ri]?.items[ngCtx.ii];if(!item)return;
+  if(!item.ngTabs)item.ngTabs=[];
+  const tabsEl=document.getElementById('ngTabs');tabsEl.innerHTML='';
+  item.ngTabs.forEach((tab,ti)=>{
+    const btn=document.createElement('button');btn.className='ng-tab'+(ti===ngCtx.tabIdx?' active':'');
+    const titleSpan=document.createElement('span');titleSpan.textContent=tab.title||'小節'+(ti+1);
+    const delSpan=document.createElement('span');delSpan.className='ng-tab-del';delSpan.textContent='✕';
+    delSpan.onclick=e=>{e.stopPropagation();delNgTab(ti);};
+    btn.onclick=()=>{ngCtx.tabIdx=ti;renderNgTabs();renderNineGrid();};
+    btn.appendChild(titleSpan);btn.appendChild(delSpan);tabsEl.appendChild(btn);
+  });
+  const addBtn=document.createElement('button');addBtn.className='ng-add-tab';addBtn.textContent='＋ 新增小節';
+  addBtn.onclick=addNgTab;tabsEl.appendChild(addBtn);
+}
+function addNgTab(){
+  const item=S.studies[ngCtx.ri]?.items[ngCtx.ii];if(!item)return;
+  if(!item.ngTabs)item.ngTabs=[];
+  item.ngTabs.push({title:'小節'+(item.ngTabs.length+1),notes:{},guides:{}});
+  ngCtx.tabIdx=item.ngTabs.length-1;autoSave();renderNgTabs();renderNineGrid();
+}
+function delNgTab(ti){
+  const item=S.studies[ngCtx.ri]?.items[ngCtx.ii];if(!item)return;
+  item.ngTabs.splice(ti,1);if(ngCtx.tabIdx>=item.ngTabs.length)ngCtx.tabIdx=Math.max(0,item.ngTabs.length-1);
+  autoSave();renderNgTabs();renderNineGrid();
+}
+function renderNineGrid(){
+  const item=S.studies[ngCtx.ri]?.items[ngCtx.ii];if(!item)return;
+  const grid=document.getElementById('ngGrid');grid.innerHTML='';
+  if(!item.ngTabs||item.ngTabs.length===0){
+    grid.innerHTML=`<div style="grid-column:1/-1;padding:20px;color:var(--mu);font-size:12px">點擊「＋ 新增小節」開始建立九宮格筆記</div>`;return;
+  }
+  const tab=item.ngTabs[ngCtx.tabIdx]||item.ngTabs[0];
+  if(!tab.notes)tab.notes={};if(!tab.guides)tab.guides={};
+  const titleRow=document.createElement('div');titleRow.style.cssText='grid-column:1/-1;display:flex;align-items:center;gap:8px;margin-bottom:4px';
+  titleRow.innerHTML=`<span style="font-size:10px;color:var(--mu)">小節標題：</span>`;
+  const titEa=document.createElement('div');titEa.style.flex='1';titEa.style.maxWidth='240px';
+  makeEditable(titEa,()=>tab.title||'',(v)=>{tab.title=v;renderNgTabs();},{placeholder:'小節標題...'});
+  titleRow.appendChild(titEa);grid.appendChild(titleRow);
+  [0,1,2,3,4,5,6,7,8].forEach(i=>{
+    const isCenter=i===4;const k=isCenter?'center':NG_KEYS[i<4?i:i-1];const lbl=isCenter?'主題':NG_LABELS[i<4?i:i-1];
+    const cell=document.createElement('div');cell.className='ng-cell'+(isCenter?' center':'');
+    cell.innerHTML=`<div class="ng-cell-lbl">${lbl}</div><div class="ng-cell-guide" id="ng-guide-${k}">${isCenter?'填入這個小節的主題名稱':(tab.guides[k]||NG_DEF[i<4?i:i-1])}</div>`;
+    const ea=document.createElement('div');
+    makeEditable(ea,()=>tab.notes[k]||'',(v)=>{tab.notes[k]=v;},{multiline:true,placeholder:isCenter?'填入主題...':'寫下你的想法...',fontSize:'11px'});
+    cell.appendChild(ea);grid.appendChild(cell);
+  });
+}
+async function ngAISuggest(){
+  const item=S.studies[ngCtx.ri]?.items[ngCtx.ii];if(!item||!item.ngTabs||!item.ngTabs.length)return;
+  const tab=item.ngTabs[ngCtx.tabIdx];if(!tab)return;
+  const topic=tab.notes['center']||'';
+  if(!topic.trim()){document.getElementById('ngAiStatus').textContent='請先填入主題';return;}
+  document.getElementById('ngAiStatus').textContent='AI 思考中...';
+  try{
+    const promptText = `你是學習引導老師。學生正在學習：「${topic}」。請為九宮格的八個格子各產生一個針對此主題的具體引導問句。格子：concept關鍵概念、example例子、question疑問、connect連結、apply應用、reflect反思、summary一句摘要、extend延伸閱讀。用繁體中文。只輸出JSON物件，key為上述英文，value為問句字串。`;
+    const text = await callGemini(promptText);
+    const cleanText = text.replace(/```json|```/g,'').trim();
+    const guides=JSON.parse(cleanText);
+    if(!tab.guides)tab.guides={};Object.assign(tab.guides,guides);
+    autoSave();
+    NG_KEYS.forEach(k=>{const el=document.getElementById('ng-guide-'+k);if(el&&guides[k])el.textContent=guides[k];});
+    document.getElementById('ngAiStatus').textContent='✓ 提問方向已更新';
+  }catch(e){document.getElementById('ngAiStatus').textContent='連線失敗';}
+}
+
+// HABIT
+function renderHabit(){
+  document.getElementById('hMonthSel').innerHTML=MN.map((m,i)=>`<button class="h-m-btn ${i===S.hMo?'active':''}" onclick="S.hMo=${i};renderHabit()">${m.slice(0,2)}</button>`).join('');
+  const m=S.hMo,dim=new Date(2026,m+1,0).getDate();
+  let doneN=0,totalN=S.habits.length*dim;
+  for(let d=1;d<=dim;d++)S.habits.forEach((_,hi)=>{if(S.hLog[`2026-${z(m+1)}-${z(d)}-h${hi}`])doneN++;});
+  const pct=totalN?Math.round(doneN/totalN*100):0;
+  document.getElementById('hSum').innerHTML=`<div class="h-stat"><div class="h-stat-n">${S.habits.length}</div><div class="h-stat-l">習慣總數</div></div><div class="h-stat"><div class="h-stat-n">${doneN}</div><div class="h-stat-l">完成次數</div></div><div class="h-stat"><div class="h-stat-n">${pct}%</div><div class="h-stat-l">完成率</div></div><div class="h-stat"><div class="h-stat-n">${dim}</div><div class="h-stat-l">本月天數</div></div>`;
+  const days=Array.from({length:dim},(_,i)=>i+1);
+  const colDef=`110px repeat(${dim},1fr)`;
+  const head=`<div class="h-grid-head" style="grid-template-columns:${colDef}"><div></div>${days.map(d=>`<div class="h-col-lbl">${d}</div>`).join('')}</div>`;
+  const hGrid=document.getElementById('hGrid');hGrid.innerHTML='';
+  const headEl=document.createElement('div');headEl.innerHTML=head;hGrid.appendChild(headEl.firstChild);
+  S.habits.forEach((h,hi)=>{
+    const row=document.createElement('div');row.className='h-row-wrap';row.style.gridTemplateColumns=colDef;row.style.marginBottom='1px';
+    const nameCell=document.createElement('div');nameCell.className='h-name-cell';
+    const nameWrap=document.createElement('div');nameWrap.style.flex='1';nameWrap.style.overflow='hidden';
+    makeEditable(nameWrap,()=>h.name||'',(v)=>{S.habits[hi].name=v;renderHabit();},{placeholder:'習慣名稱',fontSize:'9px',onDelete:()=>{if(confirm('確定刪除這個習慣？'))S.habits.splice(hi,1);renderHabit();}});
+    nameCell.appendChild(nameWrap);row.appendChild(nameCell);
+    days.forEach(d=>{
+      const dk=`2026-${z(m+1)}-${z(d)}-h${hi}`;
+      const btn=document.createElement('button');btn.className='h-cell'+(S.hLog[dk]?' done':'');
+      btn.onclick=()=>{S.hLog[dk]=!S.hLog[dk];btn.classList.toggle('done',S.hLog[dk]);reSum();autoSave();};
+      row.appendChild(btn);
+    });
+    hGrid.appendChild(row);
+  });
+  buildSleepChart(m,dim);
+  buildMoHealthChart(m,dim);
+}
+function reSum(){const m=S.hMo,dim=new Date(2026,m+1,0).getDate();let d=0;for(let day=1;day<=dim;day++)S.habits.forEach((_,hi)=>{if(S.hLog[`2026-${z(m+1)}-${z(day)}-h${hi}`])d++;});const p=S.habits.length*dim?Math.round(d/(S.habits.length*dim)*100):0;const c=document.querySelectorAll('#hSum .h-stat-n');if(c[1])c[1].textContent=d;if(c[2])c[2].textContent=p+'%';}
+function addHabit(){const v=document.getElementById('hInp').value.trim();if(!v)return;S.habits.push({name:v});document.getElementById('hInp').value='';autoSave();renderHabit();}
+
+function openSleepModal(dk){
+  sleepDk=dk;const sl=S.sleepLog[dk]||{};
+  document.getElementById('sl-bed').value=sl.bed||'23:00';document.getElementById('sl-wake').value=sl.wake||'07:00';
+  const aids=sl.aids||[];['sl-med','sl-mel','sl-milk','sl-oth'].forEach((id,i)=>document.getElementById(id).checked=aids.includes(['藥物','褪黑素','助眠奶粉','其他'][i]));
+  document.getElementById('sl-note').value=sl.note||'';
+  const p=dk.split('-');document.getElementById('sleepModT').textContent=`睡眠記錄 ${parseInt(p[1])}/${parseInt(p[2])}`;
+  document.getElementById('sleepMod').classList.add('open');
+}
+function saveSleep(){
+  const bed=document.getElementById('sl-bed').value,wake=document.getElementById('sl-wake').value;
+  const aids=[['藥物','sl-med'],['褪黑素','sl-mel'],['助眠奶粉','sl-milk'],['其他','sl-oth']].filter(([,id])=>document.getElementById(id).checked).map(([n])=>n);
+  const note=document.getElementById('sl-note').value;
+  let hrs=0;if(bed&&wake){let bm=timeToMin(bed),wm=timeToMin(wake);if(wm<=bm)wm+=1440;hrs=Math.round((wm-bm)/6)/10;}
+  S.sleepLog[sleepDk]={bed,wake,hrs,aids,note};
+  autoSave();
+  document.getElementById('sleepMod').classList.remove('open');
+  if(document.getElementById('pg-habit').classList.contains('active'))renderHabit();
+  if(document.getElementById('pg-week').classList.contains('active'))renderWeek();
+}
+function buildSleepChart(m,dim){
+  if(sleepChart){sleepChart.destroy();sleepChart=null;}
+  const labels=Array.from({length:dim},(_,i)=>i+1);
+  const bedData=labels.map(d=>{const sl=S.sleepLog[`2026-${z(m+1)}-${z(d)}`];if(!sl||!sl.bed)return null;let v=timeToMin(sl.bed)/60;if(v<12)v+=24;return Math.round(v*10)/10;});
+  const wakeData=labels.map(d=>{const sl=S.sleepLog[`2026-${z(m+1)}-${z(d)}`];if(!sl||!sl.wake)return null;let v=timeToMin(sl.wake)/60;if(v<12)v+=24;return Math.round(v*10)/10;});
+  const hrsLabels=labels.map(d=>{const sl=S.sleepLog[`2026-${z(m+1)}-${z(d)}`];return sl&&sl.hrs?sl.hrs+'h':null;});
+  sleepChart=new Chart(document.getElementById('sleepChart'),{type:'line',data:{labels,datasets:[{label:'就寢',data:bedData,borderColor:'#a89db4',fill:false,tension:.3,pointRadius:4,spanGaps:true},{label:'起床',data:wakeData,borderColor:'#8fa0b4',fill:false,tension:.3,pointRadius:4,spanGaps:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:9},boxWidth:10}},tooltip:{callbacks:{label:ctx=>{const d=ctx.dataIndex+1;const sl=S.sleepLog[`2026-${z(m+1)}-${z(d)}`];if(!sl)return'';return ctx.dataset.label==='就寢'?`就寢 ${sl.bed} · 睡${sl.hrs||'?'}h${sl.aids?.length?' · 輔助:'+sl.aids.join('、'):''}`:(`起床 ${sl.wake}`);}}}},scales:{x:{ticks:{font:{size:8},maxRotation:0}},y:{min:22,max:32,ticks:{font:{size:8},callback:v=>{const h=v%24;return `${z(Math.floor(h))}:00`;}},grid:{color:'rgba(0,0,0,.04)'}}}},plugins:[{id:'hrsLbl',afterDatasetsDraw(chart){const c2=chart.ctx;chart.data.datasets[1].data.forEach((v,i)=>{if(v===null)return;const pt=chart.getDatasetMeta(1).data[i];const hrs=hrsLabels[i];if(!hrs)return;c2.save();c2.fillStyle='#6a8ca8';c2.font='8px PingFang TC,sans-serif';c2.textAlign='center';c2.fillText(hrs,pt.x,pt.y-9);c2.restore();});}}]});
+}
+
+function buildMoHealthChart(m, dim) {
+  if(moHealthChart) moHealthChart.destroy();
+  S.healthLog = S.healthLog || {};
+  const labels = Array.from({length: dim}, (_, i) => i + 1);
+  const wData = labels.map(d => { const v = S.healthLog[`2026-${z(m+1)}-${z(d)}`]; return v ? v.weight : null; });
+  const fData = labels.map(d => { const v = S.healthLog[`2026-${z(m+1)}-${z(d)}`]; return v ? v.fat : null; });
+  const mData = labels.map(d => { const v = S.healthLog[`2026-${z(m+1)}-${z(d)}`]; return v ? v.muscle : null; });
+  
+  moHealthChart = new Chart(document.getElementById('moHealthChart'), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: '體重(kg)', data: wData, borderColor: '#8fa89a', tension: 0.3, pointRadius: 4, spanGaps: true },
+        { label: '目標(47)', data: Array(dim).fill(47), borderColor: 'rgba(143,168,154,0.8)', borderDash: [5,5], borderWidth: 2, pointRadius: 0 },
+        { label: '體脂(%)', data: fData, borderColor: '#c4a49b', tension: 0.3, pointRadius: 4, spanGaps: true },
+        { label: '目標(22)', data: Array(dim).fill(22), borderColor: 'rgba(196,164,155,0.9)', borderDash: [5,5], borderWidth: 2, pointRadius: 0 },
+        { label: '肌肉(kg)', data: mData, borderColor: '#8fa0b4', tension: 0.3, pointRadius: 4, spanGaps: true },
+        { label: '目標(22)', data: Array(dim).fill(22), borderColor: 'rgba(143,160,180,0.9)', borderDash: [2,6], borderWidth: 3, pointRadius: 0 }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { font: { size: 9 }, boxWidth: 10 } } }, scales: { x: { ticks: { font: { size: 8 } } }, y: { suggestedMin: 20, suggestedMax: 60, ticks: { font: { size: 8 } } } } }
+  });
+}
+
+// READ THEORY
+function addRT(){
+  const date=document.getElementById('rt-date').value||fmtD(TODAY);
+  const grade=parseFloat(document.getElementById('rt-grade').value)||0;
+  const lexile=parseInt(document.getElementById('rt-lexile').value)||0;
+  const score=parseFloat(document.getElementById('rt-score').value)||0;
+  const avgG=parseFloat(document.getElementById('rt-avgG').value)||0;
+  const avgL=parseInt(document.getElementById('rt-avgL').value)||0;
+  
+  if(!lexile && !avgL) return;
+  
+  S.rtRecords.push({date,grade,lexile,score,avgG,avgL});
+  S.rtRecords.sort((a,b)=>a.date.localeCompare(b.date));
+  ['rt-grade','rt-lexile','rt-score','rt-avgG','rt-avgL'].forEach(id=>document.getElementById(id).value='');
+  autoSave();
+  renderRT();
+}
+function renderRT(){
+  document.getElementById('rtGoal').value=S.rtGoal||'';
+  const recs=S.rtRecords;
+  const bestL=recs.length?Math.max(...recs.map(r=>r.avgL||r.lexile||0)):0;
+  const bestG=recs.length?Math.max(...recs.map(r=>r.avgG||r.grade||0)):0;
+  document.getElementById('rtBest').textContent=bestL ? `L${bestL} / G${bestG}` : '—';
+  
+  document.getElementById('rtStats').innerHTML=`<div class="h-stat"><div class="h-stat-n" style="color:var(--mb)">${bestL||'—'}</div><div class="h-stat-l">最高 Avg Lexile</div></div><div class="h-stat"><div class="h-stat-n" style="color:var(--ms)">${bestG||'—'}</div><div class="h-stat-l">最高 Avg Grade</div></div><div class="h-stat"><div class="h-stat-n" style="color:var(--mr)">${recs.length}</div><div class="h-stat-l">測驗次數</div></div><div class="h-stat"><div class="h-stat-n" style="color:var(--mo)">${S.rtGoal||'—'}</div><div class="h-stat-l">目標 Lexile</div></div>`;
+  
+  if(rtLexChart)rtLexChart.destroy();
+  const labels=recs.map(r=>{const p=r.date.split('-');return `${parseInt(p[1])}/${parseInt(p[2])}`});
+  const goalArr=S.rtGoal?Array(recs.length).fill(parseInt(S.rtGoal)):null;
+  
+  rtLexChart=new Chart(document.getElementById('rtLexChart'),{type:'line',data:{labels,datasets:[{label:'整體 Avg Lexile',data:recs.map(r=>r.avgL||r.lexile),borderColor:'#8fa0b4',backgroundColor:'rgba(143,160,180,.12)',fill:true,tension:.3,pointRadius:4},...(goalArr?[{label:'目標',data:goalArr,borderColor:'rgba(196,164,155,.6)',borderDash:[4,4],pointRadius:0}]:[])]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:9},boxWidth:10}}},scales:{x:{ticks:{font:{size:8}}},y:{ticks:{font:{size:8}}}}}});
+  
+  document.getElementById('rtBody').innerHTML=recs.map((r,i)=>`<tr><td>${r.date}</td><td>${r.grade||'—'}</td><td style="color:var(--mb)">${r.lexile||'—'}</td><td>${r.score||'—'}%</td><td style="font-weight:500;color:var(--ms)">${r.avgG||'—'}</td><td style="font-weight:500;color:var(--mb)">${r.avgL||'—'}</td><td style="text-align:center"><button class="row-del-btn" onclick="S.rtRecords.splice(${i},1);autoSave();renderRT();">✕</button></td></tr>`).join('');
+}
+
+// INIT — load from Google Sheets first, then render
+loadFromSheets();
+</script>
+</body>
+</html>
