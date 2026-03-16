@@ -151,7 +151,7 @@ nav{background:var(--sf);border-bottom:1px solid var(--bd);padding:0 12px;displa
 .wk-nav{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:11px}
 .wk-sel{border:1px solid var(--bd);background:var(--cd);border-radius:6px;padding:5px 8px;font-size:11px;color:var(--tx);outline:none;font-family:inherit}
 .today-btn{background:var(--mr);border:none;border-radius:6px;padding:5px 11px;font-size:11px;color:#fff;cursor:pointer}
-.wk-layout{display:grid;grid-template-columns:130px 1fr;gap:11px}
+.wk-layout{display:grid;grid-template-columns:180px 1fr;gap:11px}
 .wk-sb-sec{margin-bottom:9px}
 .wk-lbl{font-size:9px;font-weight:500;letter-spacing:.07em;color:var(--mu);margin-bottom:4px}
 .leg-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;align-items:center}
@@ -161,10 +161,10 @@ nav{background:var(--sf);border-bottom:1px solid var(--bd);padding:0 12px;displa
 .health-field{display:flex;flex-direction:column;gap:2px}
 .health-lbl{font-size:9px;color:var(--mu)}
 .health-inp{border:1px solid var(--bd);border-radius:5px;padding:4px 6px;font-size:11px;color:var(--tx);outline:none;background:var(--sf);font-family:inherit;width:100%}
-.todo-row{display:flex;align-items:center;gap:4px;margin-bottom:4px}
-.todo-chk{width:12px;height:12px;border-radius:2px;border:1px solid var(--bd);cursor:pointer;flex-shrink:0;appearance:none;-webkit-appearance:none}
+.todo-row{display:flex;align-items:flex-start;gap:6px;margin-bottom:6px}
+.todo-chk{width:12px;height:12px;border-radius:2px;border:1px solid var(--bd);cursor:pointer;flex-shrink:0;appearance:none;-webkit-appearance:none;margin-top:2px}
 .todo-chk:checked{background:var(--ms);border-color:var(--ms)}
-.todo-src{font-size:7px;color:var(--mu);background:rgba(168,157,180,.18);padding:1px 3px;border-radius:2px;flex-shrink:0}
+.todo-src{font-size:8px;color:var(--mu);background:rgba(168,157,180,.18);padding:2px 4px;border-radius:3px;flex-shrink:0}
 .add-todo-btn{font-size:9px;color:var(--mu);background:none;border:none;cursor:pointer;padding:1px 0}
 /* TL */
 .tl-wrap{overflow-x:auto}
@@ -397,7 +397,8 @@ nav{background:var(--sf);border-bottom:1px solid var(--bd);padding:0 12px;displa
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-const HOL={'2026-01-01':'元旦','2026-01-02':'元旦補假','2026-02-17':'除夕','2026-02-18':'春節','2026-02-19':'春節','2026-02-20':'春節','2026-02-23':'和平紀念日補假','2026-02-28':'和平紀念日','2026-04-03':'兒童節補假','2026-04-04':'兒童節/清明','2026-05-01':'勞動節','2026-06-19':'端午節','2026-09-26':'中秋節','2026-10-09':'國慶補假','2026-10-10':'國慶日'};
+const HOL={'2026-01-01':'放假','2026-02-16':'放假','2026-02-17':'放假','2026-02-18':'放假','2026-02-19':'放假','2026-02-20':'放假','2026-02-27':'放假','2026-04-03':'放假','2026-04-06':'放假','2026-05-01':'放假','2026-06-19':'放假','2026-09-25':'放假','2026-09-28':'放假','2026-10-09':'放假','2026-10-26':'放假','2026-12-25':'放假'};
+const YR = 2026; // 全域年份設定
 const MN=['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
 const DN=['一','二','三','四','五','六','日'];
 const CATCOLS={school:'var(--cs)',study:'var(--cst)',work:'var(--cw)',side:'var(--csd)',other:'var(--co)'};
@@ -577,7 +578,7 @@ function renderYear(){
   for(let m=0;m<12;m++){
     const div=document.createElement('div');div.className='mo-mini';
     div.onclick=()=>{S.curMo=m;showPg('month',null);};
-    const fd=new Date(2026,m,1).getDay(),dim=new Date(2026,m+1,0).getDate();
+    const fd=new Date(YR,m,1).getDay(),dim=new Date(YR,m+1,0).getDate();
     let off=(fd===0)?6:fd-1,rows='',day=1;
     for(let w=0;w<6;w++){
       if(day>dim)break;rows+='<tr>';
@@ -585,9 +586,9 @@ function renderYear(){
         let c=w*7+d-off+1;
         if(c<1||c>dim){rows+='<td></td>';}
         else{
-          const dk=`2026-${z(m+1)}-${z(c)}`;
-          const isT=TODAY.getFullYear()===2026&&TODAY.getMonth()===m&&TODAY.getDate()===c,isH=!!HOL[dk];
-          rows+=`<td class="${[isT?'t-today':'',isH?'t-hol':'',(S.events[dk]||[]).length?'has-ev':''].filter(Boolean).join(' ')}">${isT?`<span>${c}</span>`:c}${isH?'*':''}</td>`;
+          const dk=`${YR}-${z(m+1)}-${z(c)}`;
+          const isT=TODAY.getFullYear()===YR&&TODAY.getMonth()===m&&TODAY.getDate()===c,isH=!!HOL[dk]||d===5||d===6;
+          rows+=`<td class="${[isT?'t-today':'',isH?'t-hol':'',(S.events[dk]||[]).length?'has-ev':''].filter(Boolean).join(' ')}">${isT?`<span>${c}</span>`:c}</td>`;
         }
       }
       rows+='</tr>';day=Math.min(day+7,dim+1);
@@ -652,20 +653,20 @@ function renderAnnualReview(){
   S.healthLog = S.healthLog || {};
 
   let totalDone=0,totalPossible=0;
-  for(let m=0;m<12;m++){const dim=new Date(2026,m+1,0).getDate();totalPossible+=S.habits.length*dim;for(let d=1;d<=dim;d++)S.habits.forEach((_,hi)=>{if(S.hLog[`2026-${z(m+1)}-${z(d)}-h${hi}`])totalDone++;});}
+  for(let m=0;m<12;m++){const dim=new Date(YR,m+1,0).getDate();totalPossible+=S.habits.length*dim;for(let d=1;d<=dim;d++)S.habits.forEach((_,hi)=>{if(S.hLog[`${YR}-${z(m+1)}-${z(d)}-h${hi}`])totalDone++;});}
   const pct=totalPossible?Math.round(totalDone/totalPossible*100):0;
   let sleepSum=0,sleepCnt=0;
-  for(let m=0;m<12;m++){const dim=new Date(2026,m+1,0).getDate();for(let d=1;d<=dim;d++){const sl=S.sleepLog[`2026-${z(m+1)}-${z(d)}`];if(sl&&sl.hrs){sleepSum+=sl.hrs;sleepCnt++;}}}
+  for(let m=0;m<12;m++){const dim=new Date(YR,m+1,0).getDate();for(let d=1;d<=dim;d++){const sl=S.sleepLog[`${YR}-${z(m+1)}-${z(d)}`];if(sl&&sl.hrs){sleepSum+=sl.hrs;sleepCnt++;}}}
   const avgSleep=sleepCnt?Math.round(sleepSum/sleepCnt*10)/10:0;
   const stDone=S.studies.filter(r=>r.items&&r.items.length&&r.items.every(i=>i.status==='done')).length;
   document.getElementById('yrStats').innerHTML=`<div class="yr-stat"><div class="yr-stat-n">${pct}%</div><div class="yr-stat-l">習慣完成率</div></div><div class="yr-stat"><div class="yr-stat-n" style="color:var(--mb)">${avgSleep}h</div><div class="yr-stat-l">平均睡眠時數</div></div><div class="yr-stat"><div class="yr-stat-n" style="color:var(--mo)">${stDone}/${S.studies.length}</div><div class="yr-stat-l">讀書計畫完成</div></div><div class="yr-stat"><div class="yr-stat-n" style="color:var(--csd)">${S.rtRecords.length}</div><div class="yr-stat-l">RT 測驗次數</div></div>`;
   
   const hl = Array.from({length:12}, (_,i)=>(i+1)+'月');
-  const hData=Array.from({length:12},(_,m)=>{const dim=new Date(2026,m+1,0).getDate();let d=0,t=S.habits.length*dim;for(let day=1;day<=dim;day++)S.habits.forEach((_,hi)=>{if(S.hLog[`2026-${z(m+1)}-${z(day)}-h${hi}`])d++;});return t?Math.round(d/t*100):0;});
+  const hData=Array.from({length:12},(_,m)=>{const dim=new Date(YR,m+1,0).getDate();let d=0,t=S.habits.length*dim;for(let day=1;day<=dim;day++)S.habits.forEach((_,hi)=>{if(S.hLog[`${YR}-${z(m+1)}-${z(day)}-h${hi}`])d++;});return t?Math.round(d/t*100):0;});
   if(yrHabitChart)yrHabitChart.destroy();
   yrHabitChart=new Chart(document.getElementById('yrHabitChart'),{type:'bar',data:{labels:hl,datasets:[{data:hData,backgroundColor:'rgba(143,168,154,.45)',borderColor:'#8fa89a',borderWidth:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:8}}},y:{min:0,max:100,ticks:{font:{size:8},callback:v=>v+'%'}}}}});
   
-  const sData=Array.from({length:12},(_,m)=>{const dim=new Date(2026,m+1,0).getDate();let sum=0,cnt=0;for(let d=1;d<=dim;d++){const sl=S.sleepLog[`2026-${z(m+1)}-${z(d)}`];if(sl&&sl.hrs){sum+=sl.hrs;cnt++;}}return cnt?Math.round(sum/cnt*10)/10:null;});
+  const sData=Array.from({length:12},(_,m)=>{const dim=new Date(YR,m+1,0).getDate();let sum=0,cnt=0;for(let d=1;d<=dim;d++){const sl=S.sleepLog[`${YR}-${z(m+1)}-${z(d)}`];if(sl&&sl.hrs){sum+=sl.hrs;cnt++;}}return cnt?Math.round(sum/cnt*10)/10:null;});
   if(yrSleepChart)yrSleepChart.destroy();
   yrSleepChart=new Chart(document.getElementById('yrSleepChart'),{type:'line',data:{labels:hl,datasets:[{data:sData,borderColor:'#8fa0b4',backgroundColor:'rgba(143,160,180,.12)',fill:true,tension:.3,pointRadius:3,spanGaps:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:8}}},y:{min:4,max:12,ticks:{font:{size:8},stepSize:2,callback:v=>v+'h'}}}}});
   
@@ -678,7 +679,6 @@ function renderAnnualReview(){
     card.appendChild(editArea);yrQGrid.appendChild(card);
   });
 
-  // --- 繪製年度健康趨勢圖 ---
   const wks = Object.keys(S.healthLog).sort();
   let hLabels = wks.length ? wks.map(wk => wk.slice(5)) : ['年初', '年末'];
   let wData = wks.length ? wks.map(wk => S.healthLog[wk].weight || null) : [null, null];
@@ -791,7 +791,7 @@ const REFLECT_SECS=[{key:'other',label:'其他',guide:'還有什麼值得記錄�
 function renderMonth(){
   const moSel=document.getElementById('moSel');
   moSel.innerHTML=MN.map((m,i)=>`<option value="${i}" ${i===S.curMo?'selected':''}>${m}</option>`).join('');
-  const y=2026,m=S.curMo,mk=`${y}-${m}`,curQ=getQ(m);
+  const y=YR,m=S.curMo,mk=`${y}-${m}`,curQ=getQ(m);
   const kpis = S.qKpis[curQ]?.items || []; const qRefRows = kpis.length ? kpis.map(k => `<div class="q-ref-cat-row"><div class="q-ref-goal" style="padding-left:0;font-size:10px">・${k}</div></div>`).join('') : '<span style="font-size:9px;color:var(--lt)">本季尚未設定 KPI</span>';
   const sb=document.getElementById('moSb');sb.innerHTML='';
   const c1=document.createElement('div');c1.className='m-sb-card';
@@ -832,10 +832,10 @@ function renderMonth(){
       const td=document.createElement('td');const c=w*7+d2-off+1;
       if(c<1||c>dim){td.className='empty';}
       else{
-        const dk=`${y}-${z(m+1)}-${z(c)}`;const isT=TODAY.getFullYear()===y&&TODAY.getMonth()===m&&TODAY.getDate()===c;const isH=!!HOL[dk];
+        const dk=`${y}-${z(m+1)}-${z(c)}`;const isT=TODAY.getFullYear()===y&&TODAY.getMonth()===m&&TODAY.getDate()===c;const isH=!!HOL[dk]||d2===5||d2===6;
         td.className=isT?'today-c':isH?'hol-c':'';
         const dn=document.createElement('div');dn.className='dn';dn.textContent=c;td.appendChild(dn);
-        if(isH){const hl=document.createElement('span');hl.className='hol-lbl';hl.textContent=HOL[dk];td.appendChild(hl);}
+        if(HOL[dk]){const hl=document.createElement('span');hl.className='hol-lbl';hl.textContent=HOL[dk];td.appendChild(hl);}
         (S.events[dk]||[]).forEach((ev,ei)=>{const ch=document.createElement('div');ch.className=`ev-chip chip-${ev.cat}`;ch.textContent=(ev.start?ev.start+' ':'')+ev.title;ch.onclick=e=>{e.stopPropagation();openEditModal(dk,ei);};td.appendChild(ch);});
         td.onclick=()=>openAddModal('cal',dk);day=c;
       }
@@ -873,7 +873,7 @@ function buildWkSels(){
 }
 function buildWkWkSel(mo){
   const sel=document.getElementById('wkWkSel');sel.innerHTML='';const seen=new Set();
-  for(let d=new Date(2026,mo,1);d.getMonth()<=mo&&d.getFullYear()===2026;d.setDate(d.getDate()+1)){
+  for(let d=new Date(YR,0,1);d.getMonth()<=mo&&d.getFullYear()===YR;d.setDate(d.getDate()+1)){
     const ws=wkStart(new Date(d));const k=fmtD(ws);
     if(!seen.has(k)){seen.add(k);const we=new Date(ws);we.setDate(ws.getDate()+6);const o=document.createElement('option');o.value=k;o.textContent=`${ws.getMonth()+1}/${ws.getDate()} – ${we.getMonth()+1}/${we.getDate()}`;if(k===fmtD(S.curWkStart))o.selected=true;sel.appendChild(o);}
   }
@@ -894,15 +894,15 @@ function renderWeek(){
   tl.style.gridTemplateColumns='34px repeat(7,1fr)';
   const corner=document.createElement('div');corner.className='tl-corner';tl.appendChild(corner);
   for(let d=0;d<7;d++){
-    const dayD=new Date(ws);dayD.setDate(ws.getDate()+d);const dk=fmtD(dayD);const isT=dk===fmtD(TODAY);const isH=!!HOL[dk];
+    const dayD=new Date(ws);dayD.setDate(ws.getDate()+d);const dk=fmtD(dayD);const isT=dk===fmtD(TODAY);const isH=!!HOL[dk]||dayD.getDay()===0||dayD.getDay()===6;
     const th=document.createElement('div');th.className='tl-th'+(isT?' today-h':'')+(isH?' hol-h':'');
-    th.innerHTML=`${DN[d]}<br><span style="font-weight:400">${dayD.getMonth()+1}/${dayD.getDate()}</span>${isH?`<br><span style="font-size:7px;color:var(--mr)">${HOL[dk]}</span>`:''}`;
+    th.innerHTML=`${DN[d]}<br><span style="font-weight:400">${dayD.getMonth()+1}/${dayD.getDate()}</span>${HOL[dk]?`<br><span style="font-size:7px;color:var(--mr)">${HOL[dk]}</span>`:''}`;
     tl.appendChild(th);
   }
   HOURS.forEach(h=>{
     const lbl=document.createElement('div');lbl.className='tl-lbl';lbl.textContent=`${h}:00`;tl.appendChild(lbl);
     for(let d=0;d<7;d++){
-      const dayD=new Date(ws);dayD.setDate(ws.getDate()+d);const dk=fmtD(dayD);const isH=!!HOL[dk];
+      const dayD=new Date(ws);dayD.setDate(ws.getDate()+d);const dk=fmtD(dayD);const isH=!!HOL[dk]||dayD.getDay()===0||dayD.getDay()===6;
       const cell=document.createElement('div');cell.className='tl-cell'+(isH?' hol-cell':'');
       cell.onclick=()=>openAddModal('week',dk,h);
       const evs=(S.events[dk]||[]).filter(ev=>ev.start&&ev.end&&timeToMin(ev.start)<(h+1)*60&&timeToMin(ev.end)>h*60);
@@ -940,18 +940,80 @@ function renderWkHabits(ws){
   if(!S.habits.length){el.innerHTML='<div style="font-size:9px;color:var(--lt)">至習慣追蹤新增習慣</div>';return;}
   el.innerHTML=S.habits.map((h,hi)=>`<div class="hm-row"><div class="hm-name">${h.name}</div><div class="hm-dots">${Array.from({length:7},(_,d)=>{const day=new Date(ws);day.setDate(ws.getDate()+d);const k=fmtD(day)+'-h'+hi;return `<div class="hm-dot ${S.hLog[k]?'done':''}" onclick="S.hLog['${fmtD(day)}-h${hi}']=!S.hLog['${fmtD(day)}-h${hi}'];this.classList.toggle('done');autoSave();" title="${DN[d]}"></div>`;}).join('')}</div></div>`).join('');
 }
+
+// 廢棄舊的靜態複製機制，改由 renderTodos 動態建立連動
+function checkDeadlines(){} 
+
 function renderTodos(wk){
   const list=document.getElementById('todoList');list.innerHTML='';
+  
+  if(S.todos[wk]) S.todos[wk]=S.todos[wk].filter(t=>!t.text.startsWith('未完成：'));
+
+  const curWkEnd=new Date(S.curWkStart);curWkEnd.setDate(curWkEnd.getDate()+6);curWkEnd.setHours(23,59,59);
+
+  S.studies.forEach((r,ri)=>{
+    let isDue=true;
+    if(r.week){
+      const m=r.week.match(/(\d{1,2})[\/\.-月](\d{1,2})/);
+      if(m){
+        const itemD=new Date(YR,parseInt(m[1])-1,parseInt(m[2]));
+        if(itemD>curWkEnd) isDue=false;
+      }
+    }
+    if(!isDue) return;
+
+    r.items.forEach((it,ii)=>{
+      if(it.status!=='done' && it.text){
+        const row=document.createElement('div');row.className='todo-row';
+        const chk=document.createElement('input');chk.type='checkbox';chk.className='todo-chk';chk.checked=false;
+        
+        chk.onchange=()=>{
+          S.studies[ri].items[ii].status=chk.checked?'done':'none';
+          autoSave();
+          renderTodos(wk);
+        };
+        
+        const wrap=document.createElement('div');
+        wrap.style.cssText='display:flex;flex-direction:column;gap:3px;flex:1';
+        
+        const ea=document.createElement('div');
+        ea.style.fontSize='10px'; ea.style.color='var(--ms)'; ea.style.fontWeight='500'; ea.style.lineHeight='1.4';
+        ea.textContent=it.text;
+        
+        const src=document.createElement('div');src.className='todo-src';
+        src.style.alignSelf='flex-start';
+        src.textContent=`📚 ${r.subject}${r.week?' '+r.week:''}`;
+        
+        wrap.appendChild(ea);wrap.appendChild(src);
+        row.appendChild(chk);row.appendChild(wrap);
+        list.appendChild(row);
+      }
+    });
+  });
+
   (S.todos[wk]||[]).forEach((t,i)=>{
     const row=document.createElement('div');row.className='todo-row';
     const chk=document.createElement('input');chk.type='checkbox';chk.className='todo-chk';chk.checked=!!t.done;
     chk.onchange=()=>{S.todos[wk][i].done=chk.checked;autoSave();renderTodos(wk);};
-    const ea=document.createElement('div');ea.style.flex='1';
+    
+    const wrap=document.createElement('div');
+    wrap.style.cssText='display:flex;flex-direction:column;gap:3px;flex:1';
+
+    const ea=document.createElement('div');
     makeEditable(ea,()=>t.text||'',(v)=>{S.todos[wk][i].text=v;},{placeholder:'待辦事項...',fontSize:'10px',onDelete:()=>{S.todos[wk].splice(i,1);renderTodos(wk);}});
     ea.style.textDecoration=t.done?'line-through':'none';
     ea.style.color=t.done?'var(--lt)':'inherit';
-    row.appendChild(chk);row.appendChild(ea);
-    if(t.src){const src=document.createElement('span');src.className='todo-src';src.textContent=t.src;row.appendChild(src);}
+    ea.style.lineHeight='1.4';
+    wrap.appendChild(ea);
+
+    if(t.src){
+      const src=document.createElement('div');src.className='todo-src';
+      src.style.alignSelf='flex-start';
+      src.textContent=t.src;
+      wrap.appendChild(src);
+    }
+    
+    row.appendChild(chk);row.appendChild(wrap);
     list.appendChild(row);
   });
 }
@@ -996,8 +1058,8 @@ function saveEv(){
   if(editEvCtx){(S.events[editEvCtx.dk]||[]).splice(editEvCtx.idx,1,ev);}
   else{if(!S.events[S.evCtx.dk])S.events[S.evCtx.dk]=[];S.events[S.evCtx.dk].push(ev);}
   if(selDays.length&&rptGroup){
-    const endDate=rptEndVal?new Date(rptEndVal+'T00:00:00'):new Date(2026,11,31);
-    for(let cur=new Date(2026,0,1);cur<=endDate;cur.setDate(cur.getDate()+1)){
+    const endDate=rptEndVal?new Date(rptEndVal+'T00:00:00'):new Date(YR,11,31);
+    for(let cur=new Date(YR,0,1);cur<=endDate;cur.setDate(cur.getDate()+1)){
       const ourDay=(cur.getDay()+6)%7;
       if(selDays.includes(ourDay)){const k=fmtD(cur);if(k===S.evCtx.dk)continue;if(!S.events[k])S.events[k]=[];if(!S.events[k].find(e=>e.rptGroup===rptGroup))S.events[k].push({...ev,id:uid()});}
     }
@@ -1078,10 +1140,6 @@ function renderStudy(){
 }
 function cycleStatus(ri,ii){const s=S.studies[ri].items[ii].status||'none';S.studies[ri].items[ii].status=s==='none'?'done':s==='done'?'miss':'none';autoSave();renderStudy();checkDeadlines();}
 function addItem(ri){S.studies[ri].items.push({text:'新項目',status:'none',ngTabs:[]});autoSave();renderStudy();}
-function checkDeadlines(){
-  const wk=fmtD(S.curWkStart);S.studies.forEach(r=>{const missing=r.items.filter(i=>i.status!=='done'&&i.text);if(!missing.length)return;if(!S.todos[wk])S.todos[wk]=[];const src=`📚${r.subject}`;if(!S.todos[wk].find(t=>t.src===src))S.todos[wk].push({text:`未完成：${missing.map(i=>i.text).join('、')}`,done:false,src});});
-  if(document.getElementById('pg-week').classList.contains('active'))renderTodos(fmtD(S.curWkStart));
-}
 
 // NINE GRID
 function openNineGrid(ri,ii){
@@ -1164,9 +1222,9 @@ async function ngAISuggest(){
 // HABIT
 function renderHabit(){
   document.getElementById('hMonthSel').innerHTML=MN.map((m,i)=>`<button class="h-m-btn ${i===S.hMo?'active':''}" onclick="S.hMo=${i};renderHabit()">${m.slice(0,2)}</button>`).join('');
-  const m=S.hMo,dim=new Date(2026,m+1,0).getDate();
+  const m=S.hMo,dim=new Date(YR,m+1,0).getDate();
   let doneN=0,totalN=S.habits.length*dim;
-  for(let d=1;d<=dim;d++)S.habits.forEach((_,hi)=>{if(S.hLog[`2026-${z(m+1)}-${z(d)}-h${hi}`])doneN++;});
+  for(let d=1;d<=dim;d++)S.habits.forEach((_,hi)=>{if(S.hLog[`${YR}-${z(m+1)}-${z(d)}-h${hi}`])doneN++;});
   const pct=totalN?Math.round(doneN/totalN*100):0;
   document.getElementById('hSum').innerHTML=`<div class="h-stat"><div class="h-stat-n">${S.habits.length}</div><div class="h-stat-l">習慣總數</div></div><div class="h-stat"><div class="h-stat-n">${doneN}</div><div class="h-stat-l">完成次數</div></div><div class="h-stat"><div class="h-stat-n">${pct}%</div><div class="h-stat-l">完成率</div></div><div class="h-stat"><div class="h-stat-n">${dim}</div><div class="h-stat-l">本月天數</div></div>`;
   const days=Array.from({length:dim},(_,i)=>i+1);
@@ -1181,7 +1239,7 @@ function renderHabit(){
     makeEditable(nameWrap,()=>h.name||'',(v)=>{S.habits[hi].name=v;renderHabit();},{placeholder:'習慣名稱',fontSize:'9px',onDelete:()=>{if(confirm('確定刪除這個習慣？'))S.habits.splice(hi,1);renderHabit();}});
     nameCell.appendChild(nameWrap);row.appendChild(nameCell);
     days.forEach(d=>{
-      const dk=`2026-${z(m+1)}-${z(d)}-h${hi}`;
+      const dk=`${YR}-${z(m+1)}-${z(d)}-h${hi}`;
       const btn=document.createElement('button');btn.className='h-cell'+(S.hLog[dk]?' done':'');
       btn.onclick=()=>{S.hLog[dk]=!S.hLog[dk];btn.classList.toggle('done',S.hLog[dk]);reSum();autoSave();};
       row.appendChild(btn);
@@ -1191,7 +1249,7 @@ function renderHabit(){
   buildSleepChart(m,dim);
   buildMoHealthChart(m,dim);
 }
-function reSum(){const m=S.hMo,dim=new Date(2026,m+1,0).getDate();let d=0;for(let day=1;day<=dim;day++)S.habits.forEach((_,hi)=>{if(S.hLog[`2026-${z(m+1)}-${z(day)}-h${hi}`])d++;});const p=S.habits.length*dim?Math.round(d/(S.habits.length*dim)*100):0;const c=document.querySelectorAll('#hSum .h-stat-n');if(c[1])c[1].textContent=d;if(c[2])c[2].textContent=p+'%';}
+function reSum(){const m=S.hMo,dim=new Date(YR,m+1,0).getDate();let d=0;for(let day=1;day<=dim;day++)S.habits.forEach((_,hi)=>{if(S.hLog[`${YR}-${z(m+1)}-${z(day)}-h${hi}`])d++;});const p=S.habits.length*dim?Math.round(d/(S.habits.length*dim)*100):0;const c=document.querySelectorAll('#hSum .h-stat-n');if(c[1])c[1].textContent=d;if(c[2])c[2].textContent=p+'%';}
 function addHabit(){const v=document.getElementById('hInp').value.trim();if(!v)return;S.habits.push({name:v});document.getElementById('hInp').value='';autoSave();renderHabit();}
 
 function openSleepModal(dk){
@@ -1216,19 +1274,19 @@ function saveSleep(){
 function buildSleepChart(m,dim){
   if(sleepChart){sleepChart.destroy();sleepChart=null;}
   const labels=Array.from({length:dim},(_,i)=>i+1);
-  const bedData=labels.map(d=>{const sl=S.sleepLog[`2026-${z(m+1)}-${z(d)}`];if(!sl||!sl.bed)return null;let v=timeToMin(sl.bed)/60;if(v<12)v+=24;return Math.round(v*10)/10;});
-  const wakeData=labels.map(d=>{const sl=S.sleepLog[`2026-${z(m+1)}-${z(d)}`];if(!sl||!sl.wake)return null;let v=timeToMin(sl.wake)/60;if(v<12)v+=24;return Math.round(v*10)/10;});
-  const hrsLabels=labels.map(d=>{const sl=S.sleepLog[`2026-${z(m+1)}-${z(d)}`];return sl&&sl.hrs?sl.hrs+'h':null;});
-  sleepChart=new Chart(document.getElementById('sleepChart'),{type:'line',data:{labels,datasets:[{label:'就寢',data:bedData,borderColor:'#a89db4',fill:false,tension:.3,pointRadius:4,spanGaps:true},{label:'起床',data:wakeData,borderColor:'#8fa0b4',fill:false,tension:.3,pointRadius:4,spanGaps:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:9},boxWidth:10}},tooltip:{callbacks:{label:ctx=>{const d=ctx.dataIndex+1;const sl=S.sleepLog[`2026-${z(m+1)}-${z(d)}`];if(!sl)return'';return ctx.dataset.label==='就寢'?`就寢 ${sl.bed} · 睡${sl.hrs||'?'}h${sl.aids?.length?' · 輔助:'+sl.aids.join('、'):''}`:(`起床 ${sl.wake}`);}}}},scales:{x:{ticks:{font:{size:8},maxRotation:0}},y:{min:22,max:32,ticks:{font:{size:8},callback:v=>{const h=v%24;return `${z(Math.floor(h))}:00`;}},grid:{color:'rgba(0,0,0,.04)'}}}},plugins:[{id:'hrsLbl',afterDatasetsDraw(chart){const c2=chart.ctx;chart.data.datasets[1].data.forEach((v,i)=>{if(v===null)return;const pt=chart.getDatasetMeta(1).data[i];const hrs=hrsLabels[i];if(!hrs)return;c2.save();c2.fillStyle='#6a8ca8';c2.font='8px PingFang TC,sans-serif';c2.textAlign='center';c2.fillText(hrs,pt.x,pt.y-9);c2.restore();});}}]});
+  const bedData=labels.map(d=>{const sl=S.sleepLog[`${YR}-${z(m+1)}-${z(d)}`];if(!sl||!sl.bed)return null;let v=timeToMin(sl.bed)/60;if(v<12)v+=24;return Math.round(v*10)/10;});
+  const wakeData=labels.map(d=>{const sl=S.sleepLog[`${YR}-${z(m+1)}-${z(d)}`];if(!sl||!sl.wake)return null;let v=timeToMin(sl.wake)/60;if(v<12)v+=24;return Math.round(v*10)/10;});
+  const hrsLabels=labels.map(d=>{const sl=S.sleepLog[`${YR}-${z(m+1)}-${z(d)}`];return sl&&sl.hrs?sl.hrs+'h':null;});
+  sleepChart=new Chart(document.getElementById('sleepChart'),{type:'line',data:{labels,datasets:[{label:'就寢',data:bedData,borderColor:'#a89db4',fill:false,tension:.3,pointRadius:4,spanGaps:true},{label:'起床',data:wakeData,borderColor:'#8fa0b4',fill:false,tension:.3,pointRadius:4,spanGaps:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:9},boxWidth:10}},tooltip:{callbacks:{label:ctx=>{const d=ctx.dataIndex+1;const sl=S.sleepLog[`${YR}-${z(m+1)}-${z(d)}`];if(!sl)return'';return ctx.dataset.label==='就寢'?`就寢 ${sl.bed} · 睡${sl.hrs||'?'}h${sl.aids?.length?' · 輔助:'+sl.aids.join('、'):''}`:(`起床 ${sl.wake}`);}}}},scales:{x:{ticks:{font:{size:8},maxRotation:0}},y:{min:22,max:32,ticks:{font:{size:8},callback:v=>{const h=v%24;return `${z(Math.floor(h))}:00`;}},grid:{color:'rgba(0,0,0,.04)'}}}},plugins:[{id:'hrsLbl',afterDatasetsDraw(chart){const c2=chart.ctx;chart.data.datasets[1].data.forEach((v,i)=>{if(v===null)return;const pt=chart.getDatasetMeta(1).data[i];const hrs=hrsLabels[i];if(!hrs)return;c2.save();c2.fillStyle='#6a8ca8';c2.font='8px PingFang TC,sans-serif';c2.textAlign='center';c2.fillText(hrs,pt.x,pt.y-9);c2.restore();});}}]});
 }
 
 function buildMoHealthChart(m, dim) {
   if(moHealthChart) moHealthChart.destroy();
   S.healthLog = S.healthLog || {};
   const labels = Array.from({length: dim}, (_, i) => i + 1);
-  const wData = labels.map(d => { const v = S.healthLog[`2026-${z(m+1)}-${z(d)}`]; return v ? v.weight : null; });
-  const fData = labels.map(d => { const v = S.healthLog[`2026-${z(m+1)}-${z(d)}`]; return v ? v.fat : null; });
-  const mData = labels.map(d => { const v = S.healthLog[`2026-${z(m+1)}-${z(d)}`]; return v ? v.muscle : null; });
+  const wData = labels.map(d => { const v = S.healthLog[`${YR}-${z(m+1)}-${z(d)}`]; return v ? v.weight : null; });
+  const fData = labels.map(d => { const v = S.healthLog[`${YR}-${z(m+1)}-${z(d)}`]; return v ? v.fat : null; });
+  const mData = labels.map(d => { const v = S.healthLog[`${YR}-${z(m+1)}-${z(d)}`]; return v ? v.muscle : null; });
   
   moHealthChart = new Chart(document.getElementById('moHealthChart'), {
     type: 'line',
