@@ -868,15 +868,19 @@ function dropTo(e,zone,mk){
 // WEEK
 function buildWkSels(){
   const mSel=document.getElementById('wkMoSel');
-  // 戰略優化：用該週「星期四」來定義所屬月份，完美解決跨月導致的選單跳回問題
-  const midWk=new Date(S.curWkStart);midWk.setDate(midWk.getDate()+3);
-  const curMo=midWk.getMonth();
+  let curMo=parseInt(mSel.value);
+  let belongs=false;
+  if(!isNaN(curMo)){
+    for(let i=0;i<7;i++){const tmp=new Date(S.curWkStart);tmp.setDate(tmp.getDate()+i);if(tmp.getMonth()===curMo)belongs=true;}
+  }
+  if(!belongs){
+    const midWk=new Date(S.curWkStart);midWk.setDate(midWk.getDate()+3);curMo=midWk.getMonth();
+  }
   mSel.innerHTML=MN.map((m,i)=>`<option value="${i}" ${i===curMo?'selected':''}>${m}</option>`).join('');
   buildWkWkSel(curMo);
 }
 function buildWkWkSel(mo){
   const sel=document.getElementById('wkWkSel');sel.innerHTML='';const seen=new Set();
-  // 戰略優化：只生成「當前選擇月份」的週次，不再從 1 月開始盲目運算
   for(let d=new Date(YR,mo,1);d.getMonth()===mo&&d.getFullYear()===YR;d.setDate(d.getDate()+1)){
     const ws=wkStart(new Date(d));const k=fmtD(ws);
     if(!seen.has(k)){seen.add(k);const we=new Date(ws);we.setDate(ws.getDate()+6);const o=document.createElement('option');o.value=k;o.textContent=`${ws.getMonth()+1}/${ws.getDate()} – ${we.getMonth()+1}/${we.getDate()}`;if(k===fmtD(S.curWkStart))o.selected=true;sel.appendChild(o);}
@@ -884,15 +888,14 @@ function buildWkWkSel(mo){
 }
 function onWkMoChg(){
   const mo=parseInt(document.getElementById('wkMoSel').value);
-  // 戰略優化：切換月份時，精準定位到該月 1 號所在的那一週
   S.curWkStart=wkStart(new Date(YR,mo,1));
   renderWeek();
 }
 function onWkWkChg(){
   const v=document.getElementById('wkWkSel').value;
-  if(v){S.curWkStart=new Date(v+'T00:00:00');renderWeek();}
+  if(v){const [y,m,d]=v.split('-');S.curWkStart=new Date(y,m-1,d);renderWeek();}
 }
-function goToday(){S.curWkStart=wkStart(TODAY);buildWkSels();renderWeek();}
+function goToday(){S.curWkStart=wkStart(TODAY);renderWeek();}
 
 function renderWeek(){
   buildWkSels();
