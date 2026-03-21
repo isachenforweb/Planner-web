@@ -308,6 +308,28 @@ nav{background:var(--sf);border-bottom:1px solid var(--bd);padding:0 12px;displa
     color: var(--tx) !important;
     font-weight: 500 !important;
 }
+/* --- 終極修正：將所有彩色字、數字與標籤強制轉為深灰黑主色 --- */
+.h-stat-n, .yr-stat-n, #rtBest, .bdg, .st-icon, .todo-src, 
+.hol-lbl, .t-hol, .today-c .dn, .hol-c .dn,
+.add-btn, .ai-btn, .e-save, .mc td.t-today span, .q-tab.active, 
+.today-btn, .ng-tab.active, .h-m-btn.active, .m-type-btn.active, 
+.rpt-d.sel, .m-save, .ev-chip, .ev-blk,
+[style*="color:var(--ms)"], [style*="color:var(--mr)"], [style*="color:var(--mb)"],
+[style*="color:var(--mt)"], [style*="color:var(--ml)"], [style*="color:var(--mo)"],
+[style*="color:var(--cs)"], [style*="color:var(--cw)"], [style*="color:var(--cst)"],
+[style*="color:var(--csd)"], [style*="color:var(--co)"],
+[style*="color: var(--ms)"], [style*="color: var(--mr)"], [style*="color: var(--mb)"] {
+    color: var(--tx) !important;
+    font-weight: 500 !important;
+}
+
+input, textarea, select, .e-inp, .e-view {
+    color: var(--tx) !important;
+}
+
+input::placeholder, textarea::placeholder, .e-view.placeholder, .dz-hint, .kpi-hint {
+    color: var(--mu) !important;
+}
 </style>
 </head>
 <body>
