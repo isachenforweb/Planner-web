@@ -836,7 +836,7 @@ function renderMonth(){
         td.className=isT?'today-c':isH?'hol-c':'';
         const dn=document.createElement('div');dn.className='dn';dn.textContent=c;td.appendChild(dn);
         if(HOL[dk]){const hl=document.createElement('span');hl.className='hol-lbl';hl.textContent=HOL[dk];td.appendChild(hl);}
-        (S.events[dk]||[]).forEach((ev,ei)=>{const ch=document.createElement('div');ch.className=`ev-chip chip-${ev.cat}`;ch.textContent=(ev.start?ev.start+' ':'')+ev.title;ch.onclick=e=>{e.stopPropagation();openEditModal(dk,ei);};td.appendChild(ch);});
+        (S.events[dk]||[]).forEach((ev,ei)=>{if(ev.type==='actual')return;const ch=document.createElement('div');ch.className=`ev-chip chip-${ev.cat}`;ch.textContent=(ev.start?ev.start+' ':'')+ev.title;ch.onclick=e=>{e.stopPropagation();openEditModal(dk,ei);};td.appendChild(ch);});
         td.onclick=()=>openAddModal('cal',dk);day=c;
       }
       tr.appendChild(td);
