@@ -11,17 +11,17 @@
   --sf:#f5f0f3; /* 淺粉灰面塊 */
   --cd:#ffffff; /* 卡片白 */
   --bd:#e8dde3; /* 柔和邊框 */
-  --tx:#5c4e58; /* 主文字（稍微調深以維持對比度） */
-  --mu:#8f808b; /* 輔助文字 */
-  --lt:#c0b4bc; /* 淺色文字 */
+  --tx:#3a3138; /* 主文字：極深的紫灰黑 */
+  --mu:#6b5d66; /* 輔助文字：加深，確保側邊欄與小標題清楚 */
+  --lt:#9c8d96; /* 淺色文字：加深，避免與背景融為一體 */
   /* 馬卡龍彩色輔助 */
   --ms:#a8e6cf; /* 薄荷綠（完成/成功） */
   --mr:#ffaaa5; /* 蜜桃粉（提醒/未完成） */
   --mb:#bce6eb; /* 寶寶藍（按鈕/主要行動） */
-  --mt:#fdfd96; /* 檸檬黃 */
+  --mt:#fce89d; /* 奶油黃 */
   --ml:#cbaacb; /* 薰衣草紫 */
   --mo:#ffb7b2; /* 珊瑚紅 */
-  --cs:#bce6eb; --cst:#a8e6cf; --cw:#ffaaa5; --csd:#cbaacb; --co:#fdfd96;
+  --cs:#bce6eb; --cst:#a8e6cf; --cw:#ffaaa5; --csd:#cbaacb; --co:#fce89d;
 }
 body{
   /* 替換為仿宋體，並設定系統備用字型 */
@@ -155,7 +155,7 @@ nav{background:var(--sf);border-bottom:1px solid var(--bd);padding:0 12px;displa
 .dn{font-size:9px;color:var(--mu);margin-bottom:1px}
 .today-c .dn{font-weight:500;color:var(--mr)}.hol-c .dn{color:var(--mr)}
 .hol-lbl{font-size:7px;color:var(--mr);display:block;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ev-chip{font-size:8px;padding:1px 4px;border-radius:2px;margin-bottom:1px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;display:block}
+.ev-chip{font-size:8px;padding:1px 4px;border-radius:2px;margin-bottom:1px;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;display:block}
 .chip-school{background:var(--cs)}.chip-study{background:var(--cst)}.chip-work{background:var(--cw)}.chip-side{background:var(--csd)}.chip-other{background:var(--co)}
 .m-reflect{margin-top:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
 .m-reflect-card{background:var(--cd);border:1px solid var(--bd);border-radius:8px;padding:11px}
@@ -190,7 +190,7 @@ nav{background:var(--sf);border-bottom:1px solid var(--bd);padding:0 12px;displa
 .tl-lbl{height:44px;display:flex;align-items:flex-start;justify-content:flex-end;padding:2px 4px 0;font-size:7px;color:var(--lt);border-bottom:1px solid var(--bd);border-right:1px solid var(--bd);background:var(--sf)}
 .tl-cell{height:44px;border-bottom:1px solid var(--bd);border-right:1px solid var(--bd);position:relative;cursor:pointer}
 .tl-cell:hover{background:rgba(143,160,180,.05)}.tl-cell.hol-cell{background:rgba(232,196,188,.08)}
-.ev-blk{position:absolute;border-radius:3px;font-size:8px;padding:2px 4px;overflow:hidden;z-index:2;cursor:pointer;line-height:1.4;color:#fff}
+.ev-blk{position:absolute;border-radius:3px;font-size:8px;padding:2px 4px;overflow:hidden;z-index:2;cursor:pointer;line-height:1.4;color:var(--tx)}
 .ev-blk.plan{opacity:.92}.ev-blk.actual{opacity:.78;border:1.5px dashed rgba(255,255,255,.55)}
 .tl-bottom-lbl{border-right:1px solid var(--bd);background:var(--sf);border-bottom:1px solid var(--bd);display:flex;flex-direction:column;justify-content:center;align-items:flex-end;padding:2px 4px;gap:3px}
 .tl-bottom-lbl span{font-size:7px;color:var(--lt)}
@@ -301,6 +301,13 @@ nav{background:var(--sf);border-bottom:1px solid var(--bd);padding:0 12px;displa
 .sleep-chk-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
 .sleep-chk{display:flex;align-items:center;gap:4px;font-size:10px;cursor:pointer}
 .sleep-chk input{width:12px;height:12px;cursor:pointer}
+.add-btn, .ai-btn, .e-save, .mc td.t-today span, .q-tab.active, 
+.today-btn, .st-icon.done, .st-icon.miss, .ng-tab.active, 
+.h-m-btn.active, .m-type-btn.active, .rpt-d.sel, .m-save, 
+.ev-chip, .ev-blk {
+    color: var(--tx) !important;
+    font-weight: 500 !important;
+}
 </style>
 </head>
 <body>
