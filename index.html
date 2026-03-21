@@ -6,15 +6,30 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  /* 莫蘭迪綠主色調 */
-  --bg:#f0f4f1; --sf:#e8ede9; --cd:#ffffff; --bd:#c9d4ce;
-  --tx:#3c4a42; --mu:#6f8278; --lt:#a2b1a8;
-  /* 莫蘭迪彩色輔助 */
-  --ms:#6b8e7b; --mr:#b88e8d; --mb:#728c99; --mt:#a39682;
-  --ml:#928599; --mo:#8e9972;
-  --cs:#728c99; --cst:#8e9972; --cw:#b88e8d; --csd:#928599; --co:#a39682;
+  /* 馬卡龍主色調 */
+  --bg:#fcf9fa; /* 極淺櫻花粉底 */
+  --sf:#f5f0f3; /* 淺粉灰面塊 */
+  --cd:#ffffff; /* 卡片白 */
+  --bd:#e8dde3; /* 柔和邊框 */
+  --tx:#5c4e58; /* 主文字（稍微調深以維持對比度） */
+  --mu:#8f808b; /* 輔助文字 */
+  --lt:#c0b4bc; /* 淺色文字 */
+  /* 馬卡龍彩色輔助 */
+  --ms:#a8e6cf; /* 薄荷綠（完成/成功） */
+  --mr:#ffaaa5; /* 蜜桃粉（提醒/未完成） */
+  --mb:#bce6eb; /* 寶寶藍（按鈕/主要行動） */
+  --mt:#fdfd96; /* 檸檬黃 */
+  --ml:#cbaacb; /* 薰衣草紫 */
+  --mo:#ffb7b2; /* 珊瑚紅 */
+  --cs:#bce6eb; --cst:#a8e6cf; --cw:#ffaaa5; --csd:#cbaacb; --co:#fdfd96;
 }
-body{font-family:'PingFang TC','Noto Sans TC',sans-serif;background:var(--bg);color:var(--tx);font-size:13px;line-height:1.6;zoom:1.15}
+body{
+  /* 替換為仿宋體，並設定系統備用字型 */
+  font-family:'FangSong', 'BiauKai', 'STFangsong', 'TW-Kai', serif;
+  background:var(--bg);color:var(--tx);font-size:13px;line-height:1.6;zoom:1.15;
+  /* 加入些微字距，改善仿宋體在小螢幕的易讀性 */
+  letter-spacing: 0.02em; 
+}
 nav{background:var(--sf);border-bottom:1px solid var(--bd);padding:0 12px;display:flex;align-items:center;flex-wrap:wrap;position:sticky;top:0;z-index:100}
 .nb{background:none;border:none;padding:10px 9px;font-size:11px;color:var(--mu);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
 .nb.active{color:var(--tx);border-bottom-color:var(--mr)}.nb:hover{color:var(--tx)}
