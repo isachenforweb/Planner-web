@@ -376,7 +376,13 @@ input::placeholder, textarea::placeholder, .e-view.placeholder, .dz-hint, .kpi-h
   <div class="m-main"><div class="m-sb" id="moSb"></div><div><div class="cal-wrap"><table class="cal"><thead><tr id="calHead"></tr></thead><tbody id="calBody"></tbody></table></div><div class="m-reflect" id="moReflect"></div></div></div>
 </div>
 <div id="pg-week" class="page">
-  <div class="wk-nav"><select class="wk-sel" id="wkMoSel" onchange="onWkMoChg()"></select><select class="wk-sel" id="wkWkSel" onchange="onWkWkChg()"></select><button class="today-btn" onclick="goToday()">跳到今天</button></div>
+  <div class="wk-nav">
+  <button class="m-nav-btn" onclick="chgWk(-1)">&#8249;</button>
+  <div id="wkDateDisplay" style="font-size:13px; font-weight:500; color:var(--tx); min-width:110px; text-align:center; letter-spacing:0.05em;"></div>
+  <button class="m-nav-btn" onclick="chgWk(1)">&#8250;</button>
+  <button class="today-btn" onclick="goToday()">跳到今天</button>
+  <input type="date" id="wkJmp" class="wk-sel" style="margin-left:auto; width:115px;" onchange="jmpWk()">
+</div>
   <div class="leg-row"><div class="leg"><div class="leg-dot" style="background:var(--cs)"></div>上課</div><div class="leg"><div class="leg-dot" style="background:var(--cst)"></div>讀書</div><div class="leg"><div class="leg-dot" style="background:var(--cw)"></div>上班</div><div class="leg"><div class="leg-dot" style="background:var(--csd)"></div>副業</div><div class="leg"><div class="leg-dot" style="background:var(--co)"></div>其他</div><span style="font-size:9px;color:var(--lt);margin-left:4px">實色=計畫 · 虛框=實際</span></div>
   <div class="health-bar" id="healthBar"></div>
   <div class="wk-layout">
@@ -534,7 +540,7 @@ async function loadFromSheets(){
   } else {
     setSyncUI('ok','建立新資料庫');
   }
-  renderYear(); buildWkSels(); renderStudy(); renderRT();
+  renderYear(); renderStudy(); renderRT();
 }
 
 function autoSave(){
@@ -903,34 +909,23 @@ function dropTo(e,zone,mk){
 }
 
 // WEEK
-function buildWkSels(){
-  const mSel=document.getElementById('wkMoSel');
-  const midWk=new Date(S.curWkStart);midWk.setDate(midWk.getDate()+3);
-  const curMo=midWk.getMonth();
-  mSel.innerHTML=MN.map((m,i)=>`<option value="${i}" ${i===curMo?'selected':''}>${m}</option>`).join('');
-  buildWkWkSel(curMo);
-}
-function buildWkWkSel(mo){
-  const sel=document.getElementById('wkWkSel');sel.innerHTML='';const seen=new Set();
-  for(let d=new Date(YR,mo,1);d.getMonth()===mo&&d.getFullYear()===YR;d.setDate(d.getDate()+1)){
-    const ws=wkStart(new Date(d));const k=fmtD(ws);
-    if(!seen.has(k)){seen.add(k);const we=new Date(ws);we.setDate(ws.getDate()+6);const o=document.createElement('option');o.value=k;o.textContent=`${ws.getMonth()+1}/${ws.getDate()} – ${we.getMonth()+1}/${we.getDate()}`;if(k===fmtD(S.curWkStart))o.selected=true;sel.appendChild(o);}
-  }
-}
-function onWkMoChg(){
-  const mo=parseInt(document.getElementById('wkMoSel').value);
-  S.curWkStart=wkStart(new Date(YR,mo,1));
+function chgWk(dir){
+  S.curWkStart.setDate(S.curWkStart.getDate()+(dir*7));
   renderWeek();
 }
-function onWkWkChg(){
-  const v=document.getElementById('wkWkSel').value;
-  if(v){S.curWkStart=new Date(v+'T00:00:00');renderWeek();}
+function jmpWk(){
+  const v=document.getElementById('wkJmp').value;
+  if(v){S.curWkStart=wkStart(new Date(v+'T00:00:00'));renderWeek();}
 }
-function goToday(){S.curWkStart=wkStart(new Date());buildWkSels();renderWeek();}
+function goToday(){
+  S.curWkStart=wkStart(new Date());
+  renderWeek();
+}
 
 function renderWeek(){
-  buildWkSels();
-  const ws=S.curWkStart;const wk=fmtD(ws);
+  const ws=S.curWkStart;const we=new Date(ws);we.setDate(we.getDate()+6);const wk=fmtD(ws);
+  document.getElementById('wkDateDisplay').textContent=`${ws.getMonth()+1}/${ws.getDate()} – ${we.getMonth()+1}/${we.getDate()}`;
+  document.getElementById('wkJmp').value=wk;
   const goalArea=document.getElementById('wkGoalArea');
   makeEditable(goalArea,()=>S.wkGoal[wk]||'',(v)=>{S.wkGoal[wk]=v;},{multiline:true,placeholder:'輸入本週目標...'});
   const hl=S.healthLog[wk]||{};
