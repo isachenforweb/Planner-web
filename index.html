@@ -326,6 +326,38 @@ nav{background:var(--sf);border-bottom:1px solid var(--bd);padding:0 12px;displa
 input, textarea, select, .e-inp, .e-view { color: var(--tx) !important; }
 input::placeholder, textarea::placeholder, .e-view.placeholder, .dz-hint, .kpi-hint { color: var(--mu) !important; }
 .sleep-mini-btn.has-data, .sleep-mini-btn, .bottom-inp { color: var(--tx) !important; font-weight: 500 !important; }
+/* ── GUIDED LEARNING ── */
+.gl-sub-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.gl-sub-tab{background:var(--sf);border:1px solid var(--bd);border-radius:18px;padding:5px 13px;font-size:10px;cursor:pointer;color:var(--mu);font-family:inherit}
+.gl-sub-tab.active{background:var(--mr);border-color:var(--mr);color:#3a3138}
+.gl-sub-panel{display:none}.gl-sub-panel.active{display:block}
+.gl-inp-row{display:flex;gap:7px;margin-bottom:10px}
+.gl-inp{flex:1;border:1px solid var(--bd);border-radius:7px;padding:8px 12px;font-size:12px;font-family:inherit;color:var(--tx);background:var(--cd);outline:none}
+.gl-inp:focus{border-color:var(--mb)}
+.gl-ta{width:100%;border:1px solid var(--bd);border-radius:7px;padding:9px 12px;font-size:12px;font-family:inherit;color:var(--tx);background:var(--cd);resize:vertical;min-height:100px;outline:none;line-height:1.8}
+.gl-ta:focus{border-color:var(--mb)}
+.gl-chat-box{border:1px solid var(--bd);border-radius:10px;background:var(--cd);padding:12px;max-height:420px;overflow-y:auto;margin-bottom:10px;min-height:220px}
+.gl-chat-msg{margin-bottom:9px;display:flex;gap:7px}
+.gl-chat-msg.user{justify-content:flex-end}
+.gl-chat-msg.user .gl-bubble{background:var(--mb);border-radius:10px 10px 2px 10px}
+.gl-chat-msg.ai .gl-bubble{background:var(--sf);border-radius:10px 10px 10px 2px}
+.gl-bubble{max-width:82%;padding:9px 13px;font-size:12px;line-height:1.8;color:var(--tx)}
+.gl-input-row{display:flex;gap:7px}
+.gl-chat-input{flex:1;border:1px solid var(--bd);border-radius:18px;padding:9px 14px;font-size:12px;font-family:inherit;color:var(--tx);background:var(--cd);outline:none}
+.gl-chat-input:focus{border-color:var(--mb)}
+.gl-btn{border:none;border-radius:7px;padding:7px 14px;font-size:11px;font-family:inherit;cursor:pointer;transition:opacity .15s}
+.gl-btn:hover{opacity:.85}
+.gl-btn-blue{background:var(--mb);color:var(--tx)}
+.gl-btn-green{background:var(--ms);color:var(--tx)}
+.gl-btn-pink{background:var(--mr);color:var(--tx)}
+.gl-btn-lav{background:var(--ml);color:var(--tx)}
+.gl-btn-yellow{background:var(--mt);color:var(--tx)}
+.gl-btn-outline{background:none;border:1px solid var(--bd);color:var(--mu)}
+.gl-btn-sm{padding:4px 10px;font-size:10px}
+.gl-dots span{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--ml);margin:0 2px;animation:glBounce .8s infinite}
+.gl-dots span:nth-child(2){animation-delay:.15s}
+.gl-dots span:nth-child(3){animation-delay:.3s}
+@keyframes glBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 </style>
 </head>
 <body>
@@ -339,6 +371,7 @@ input::placeholder, textarea::placeholder, .e-view.placeholder, .dz-hint, .kpi-h
   <button class="nb" onclick="showPg('study',this)">讀書計畫</button>
   <button class="nb" onclick="showPg('habit',this)">習慣追蹤</button>
   <button class="nb" onclick="showPg('rt',this)">Read Theory</button>
+  <button class="nb" onclick="showPg('guided',this)">🗣️ 引導學習</button>
   <div id="syncStatus" style="margin-left:auto;display:flex;align-items:center;gap:5px;padding:0 10px;font-size:10px;color:var(--mu)">
     <div class="sync-dot" style="width:7px;height:7px;border-radius:50%;background:var(--lt);transition:background .3s"></div>
     <span class="sync-txt">載入中</span>
@@ -439,6 +472,58 @@ input::placeholder, textarea::placeholder, .e-view.placeholder, .dz-hint, .kpi-h
   <div class="rt-stats" id="rtStats"></div>
   <div class="rt-chart-card"><div class="rt-chart-t">整體 Program Average Lexile 趨勢</div><div style="position:relative;height:160px"><canvas id="rtLexChart"></canvas></div></div>
   <div class="card" style="padding:0;overflow:hidden"><table class="rt-table"><thead><tr><th>日期</th><th>單篇 Grade</th><th>單篇 Lexile</th><th>Score</th><th>整體 Avg G</th><th>整體 Avg L</th><th style="width:34px"></th></tr></thead><tbody id="rtBody"></tbody></table></div>
+</div>
+
+<!-- GUIDED LEARNING PAGE -->
+<div id="pg-guided" class="page">
+  <div class="sec-t" style="margin-bottom:11px">🗣️ 引導式學習</div>
+  <div class="card" style="margin-bottom:10px">
+    <div class="gl-sub-tabs">
+      <button class="gl-sub-tab active" onclick="glSwitchTab('url',this)">🔗 URL 抓取</button>
+      <button class="gl-sub-tab" onclick="glSwitchTab('text',this)">📋 貼入文字</button>
+      <button class="gl-sub-tab" onclick="glSwitchTab('sentence',this)">✏️ 單句解析</button>
+    </div>
+    <div class="gl-sub-panel active" id="gl-url-panel">
+      <div class="gl-inp-row">
+        <input type="text" class="gl-inp" id="gl-url-inp" placeholder="貼上文章網址…" onkeydown="if(event.key==='Enter')glFetchURL()">
+        <button class="gl-btn gl-btn-blue" onclick="glFetchURL()">抓取</button>
+      </div>
+      <div id="gl-url-status" style="display:none;font-size:11px;line-height:1.9;margin-top:4px"></div>
+    </div>
+    <div class="gl-sub-panel" id="gl-text-panel">
+      <textarea class="gl-ta" id="gl-text-inp" placeholder="貼上文章內容…"></textarea>
+      <button class="gl-btn gl-btn-green" onclick="glStartArticle()" style="margin-top:8px">開始對話</button>
+    </div>
+    <div class="gl-sub-panel" id="gl-sentence-panel">
+      <div style="font-size:10px;color:var(--lt);margin-bottom:7px">輸入一句英文，AI 不逐字翻譯，先讓你感受它在說什麼</div>
+      <div class="gl-inp-row">
+        <input type="text" class="gl-inp" id="gl-sentence-inp" placeholder="例：She left without saying a word." onkeydown="if(event.key==='Enter')glAnalyzeSentence()">
+        <button class="gl-btn gl-btn-lav" onclick="glAnalyzeSentence()">解析</button>
+      </div>
+    </div>
+  </div>
+  <div class="card" id="gl-article-card" style="display:none;margin-bottom:10px">
+    <div style="font-size:10px;font-weight:500;color:var(--mu);cursor:pointer;user-select:none;display:flex;justify-content:space-between" onclick="glToggleArticle()">
+      📄 已載入文章 <span id="gl-article-toggle" style="font-size:9px;color:var(--lt)">▼ 展開</span>
+    </div>
+    <div id="gl-article-preview" style="display:none;font-size:11px;color:var(--mu);line-height:1.7;max-height:140px;overflow-y:auto;margin-top:8px;background:var(--sf);border-radius:7px;padding:9px;white-space:pre-wrap"></div>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px">
+      <div style="font-size:9px;font-weight:500;letter-spacing:.08em;color:var(--mu)">對話</div>
+      <div style="display:flex;gap:6px">
+        <button class="gl-btn gl-btn-outline gl-btn-sm" onclick="glClearChat()">清空</button>
+        <button class="gl-btn gl-btn-yellow gl-btn-sm" onclick="glSaveChat()">💾 儲存</button>
+      </div>
+    </div>
+    <div class="gl-chat-box" id="gl-chat-box">
+      <div class="gl-chat-msg ai"><div class="gl-bubble">嗨，我準備好了。貼入文章 URL、直接貼文字，或輸入一個英文句子都行。</div></div>
+    </div>
+    <div class="gl-input-row">
+      <input type="text" class="gl-chat-input" id="gl-chat-input" placeholder="輸入想說的…" onkeydown="if(event.key==='Enter')glSendChat()">
+      <button class="gl-btn gl-btn-pink" onclick="glSendChat()">送出</button>
+    </div>
+  </div>
 </div>
 
 <div class="modal-ov" id="evMod"><div class="modal"><div class="modal-t" id="modT">新增事件</div><input class="m-inp" id="ev-title" placeholder="標題"><select class="m-sel" id="ev-cat"><option value="school">上課</option><option value="study">讀書</option><option value="work">上班</option><option value="side">副業</option><option value="other">其他</option></select><div id="evTimeArea"><div class="m-lbl">類型</div><div class="m-type-row"><button class="m-type-btn active" id="btnPlan" onclick="setEvT('plan')">計畫</button><button class="m-type-btn" id="btnActual" onclick="setEvT('actual')">實際</button></div><div class="m-lbl">時間</div><div class="m-time-row"><input class="m-inp" id="ev-start" type="time" style="flex:1;margin:0"><span style="font-size:10px;color:var(--mu);padding:0 4px">到</span><input class="m-inp" id="ev-end" type="time" style="flex:1;margin:0"></div></div><div class="m-lbl">備註</div><textarea class="m-inp" id="ev-note" placeholder="備註（可不填）" rows="2" style="resize:none"></textarea><div id="rptArea"><div class="m-lbl">固定每週重複</div><div class="rpt-days" id="rptDays"></div><div class="m-lbl">結束日期</div><input class="m-inp" id="rptEnd" type="date"></div><div class="m-btn-row"><button class="m-del" id="modDelBtn" style="display:none" onclick="deleteEv()">刪除</button><button class="m-cancel" onclick="closeModal()">取消</button><button class="m-save" onclick="saveEv()">儲存</button></div></div></div>
@@ -612,7 +697,7 @@ function showPg(id,btn){
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
   document.getElementById('pg-'+id).classList.add('active');
   if(btn)btn.classList.add('active');
-  ({year:renderYear,annual:renderAnnual,quarter:renderQuarter,month:renderMonth,week:renderWeek,study:renderStudy,habit:renderHabit,rt:renderRT,ninegrid:()=>renderNineGrid()})[id]?.();
+  ({year:renderYear,annual:renderAnnual,quarter:renderQuarter,month:renderMonth,week:renderWeek,study:renderStudy,habit:renderHabit,rt:renderRT,ninegrid:()=>renderNineGrid(),guided:()=>{}})[id]?.();
 }
 
 // YEAR
@@ -1418,6 +1503,163 @@ function renderRT(){
   rtLexChart=new Chart(document.getElementById('rtLexChart'),{type:'line',data:{labels,datasets:[{label:'整體 Avg Lexile',data:recs.map(r=>r.avgL||r.lexile),borderColor:'#8fa0b4',backgroundColor:'rgba(143,160,180,.12)',fill:true,tension:.3,pointRadius:4},...(goalArr?[{label:'目標',data:goalArr,borderColor:'rgba(196,164,155,.6)',borderDash:[4,4],pointRadius:0}]:[])]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:9},boxWidth:10}}},scales:{x:{ticks:{font:{size:8}}},y:{ticks:{font:{size:8}}}}}});
   
   document.getElementById('rtBody').innerHTML=recs.map((r,i)=>`<tr><td>${r.date}</td><td>${r.grade||'—'}</td><td style="color:var(--mb)">${r.lexile||'—'}</td><td>${r.score||'—'}%</td><td style="font-weight:500;color:var(--ms)">${r.avgG||'—'}</td><td style="font-weight:500;color:var(--mb)">${r.avgL||'—'}</td><td style="text-align:center"><button class="row-del-btn" onclick="S.rtRecords.splice(${i},1);autoSave();renderRT();">✕</button></td></tr>`).join('');
+}
+
+// ===== GUIDED LEARNING =====
+const GL_SYSTEM=`你是一個說書人型的思考夥伴，不是老師、不是知識提供者、不是辯論對手。使用者有閱讀障礙與注意力不足，學習開關是情緒觸發——好奇或異議，不是「應該學習」的義務感。她不需要讀文章，你負責把文章變成她願意接話的對話。
+文章進入時：
+不給摘要、不問問題。把文章最核心或最反直覺的概念，包進一個真實場景或故事裡說出來，100字以內。結尾不一定要留問題，有時候留懸念、有時候說一半停住、有時候直接說完讓她自己決定要不要接——讓她永遠猜不到你下一句的形式。
+她表態後：
+不評價對錯、不說「很好」「說得對」。用故事或案例推進，例如「有個案例跟你說的方向完全相反」或「有個人當初也這樣想，後來發生了一件事」。讓她在對話裡自己移動立場，但感覺像是自己想通的。
+她堅持己見時：
+不正面反駁。換一個完全不同的視角再說一個故事或場景，讓她自己發現矛盾。絕對不說「但是你有沒有想過」這類句型。
+英文句子解析時：
+不逐字翻譯。先把這句話還原成一個生活場景或情境，讓她感受這句話在說什麼，再視對話走向決定要不要深入句型結構——不是每次都要解析，看她的反應決定。
+任何時候絕對不能做的事：
+∙ 重複使用固定句型收尾，例如「你覺得呢」「你有沒有遇過類似的狀況」「你有什麼想法」
+∙ 連續問超過一個問題
+∙ 給完整結論或標準答案
+∙ 語氣像老師、客服、或心理諮商師
+語氣基準：
+像一個很會講故事、偶爾會說「這件事其實沒那麼簡單」的朋友。有自己的觀點但不強迫你接受，不會一味同意你，但也不會為了反駁而反駁。`;
+
+let glHistory=[];let glArticleText='';
+
+function glSwitchTab(mode,btn){
+  document.querySelectorAll('.gl-sub-tab').forEach(t=>t.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  document.querySelectorAll('.gl-sub-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('gl-'+mode+'-panel').classList.add('active');
+}
+
+async function glFetchURL(){
+  const rawUrl=document.getElementById('gl-url-inp').value.trim();if(!rawUrl)return;
+  const st=document.getElementById('gl-url-status');st.style.display='';
+  st.innerHTML='<div class="gl-dots"><span></span><span></span><span></span></div> 抓取中…';
+  try{
+    const proxyUrl=`https://api.allorigins.win/get?url=${encodeURIComponent(rawUrl)}`;
+    const res=await fetch(proxyUrl);const data=await res.json();
+    if(!data.contents)throw new Error('無法取得內容');
+    const parser=new DOMParser();const doc=parser.parseFromString(data.contents,'text/html');
+    ['script','style','nav','header','footer','aside','iframe','noscript'].forEach(tag=>{doc.querySelectorAll(tag).forEach(el=>el.remove());});
+    const text=(doc.body?doc.body.innerText:'').replace(/\s+/g,' ').trim();
+    if(text.length<80)throw new Error('抓取內容太少，可能被網站擋了');
+    glArticleText=text.slice(0,3000);
+    st.innerHTML=`<span style="color:var(--ms)">✓ 抓取成功（約 ${glArticleText.length} 字）</span>`;
+    await glStartArticleFromText();
+  }catch(e){
+    st.innerHTML=`<span style="color:var(--mr)">⚠️ ${e.message}，請改用手動貼文</span><br><button class="gl-btn gl-btn-outline gl-btn-sm" onclick="glSwitchTab('text',null);document.querySelectorAll('.gl-sub-tab')[1].classList.add('active');document.querySelectorAll('.gl-sub-tab')[0].classList.remove('active')" style="margin-top:5px">改用手動貼文 →</button>`;
+  }
+}
+
+async function glStartArticle(){
+  const text=document.getElementById('gl-text-inp').value.trim();if(!text)return;
+  glArticleText=text.slice(0,3000);await glStartArticleFromText();
+}
+
+async function glStartArticleFromText(){
+  if(!GEMINI_KEY)return;
+  document.getElementById('gl-article-card').style.display='';
+  document.getElementById('gl-article-preview').textContent=glArticleText.slice(0,300)+(glArticleText.length>300?'…':'');
+  glHistory=[];
+  const box=document.getElementById('gl-chat-box');
+  box.innerHTML+='<div class="gl-chat-msg ai" id="gl-loading"><div class="gl-bubble"><div class="gl-dots"><span></span><span></span><span></span></div></div></div>';
+  box.scrollTop=box.scrollHeight;
+  glHistory.push({role:'user',parts:[{text:'文章內容如下，請開始：\n\n'+glArticleText}]});
+  try{
+    const reply=await glCallAPI();
+    glHistory.push({role:'model',parts:[{text:reply}]});
+    const ld=document.getElementById('gl-loading');if(ld)ld.remove();
+    box.innerHTML+=`<div class="gl-chat-msg ai"><div class="gl-bubble">${reply.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</div></div>`;
+    box.scrollTop=box.scrollHeight;
+  }catch(e){
+    const ld=document.getElementById('gl-loading');if(ld)ld.remove();
+    box.innerHTML+=`<div class="gl-chat-msg ai"><div class="gl-bubble">❌ ${e.message}</div></div>`;
+  }
+}
+
+async function glAnalyzeSentence(){
+  const sentence=document.getElementById('gl-sentence-inp').value.trim();
+  if(!sentence||!GEMINI_KEY)return;
+  const box=document.getElementById('gl-chat-box');
+  box.innerHTML+=`<div class="gl-chat-msg user"><div class="gl-bubble" style="font-family:Verdana,sans-serif">${sentence.replace(/</g,'&lt;')}</div></div>`;
+  box.innerHTML+='<div class="gl-chat-msg ai" id="gl-loading"><div class="gl-bubble"><div class="gl-dots"><span></span><span></span><span></span></div></div></div>';
+  box.scrollTop=box.scrollHeight;
+  glHistory.push({role:'user',parts:[{text:'請解析這個英文句子：'+sentence}]});
+  try{
+    const reply=await glCallAPI();
+    glHistory.push({role:'model',parts:[{text:reply}]});
+    const ld=document.getElementById('gl-loading');if(ld)ld.remove();
+    box.innerHTML+=`<div class="gl-chat-msg ai"><div class="gl-bubble">${reply.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</div></div>`;
+    box.scrollTop=box.scrollHeight;
+    document.getElementById('gl-sentence-inp').value='';
+  }catch(e){
+    const ld=document.getElementById('gl-loading');if(ld)ld.remove();
+    box.innerHTML+=`<div class="gl-chat-msg ai"><div class="gl-bubble">❌ ${e.message}</div></div>`;
+  }
+}
+
+async function glSendChat(){
+  const input=document.getElementById('gl-chat-input');const msg=input.value.trim();
+  if(!msg||!GEMINI_KEY)return;
+  input.value='';
+  const box=document.getElementById('gl-chat-box');
+  box.innerHTML+=`<div class="gl-chat-msg user"><div class="gl-bubble">${msg.replace(/</g,'&lt;')}</div></div>`;
+  box.innerHTML+='<div class="gl-chat-msg ai" id="gl-loading"><div class="gl-bubble"><div class="gl-dots"><span></span><span></span><span></span></div></div></div>';
+  box.scrollTop=box.scrollHeight;
+  glHistory.push({role:'user',parts:[{text:msg}]});
+  try{
+    const reply=await glCallAPI();
+    glHistory.push({role:'model',parts:[{text:reply}]});
+    const ld=document.getElementById('gl-loading');if(ld)ld.remove();
+    box.innerHTML+=`<div class="gl-chat-msg ai"><div class="gl-bubble">${reply.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</div></div>`;
+    box.scrollTop=box.scrollHeight;
+  }catch(e){
+    const ld=document.getElementById('gl-loading');if(ld)ld.remove();
+    box.innerHTML+=`<div class="gl-chat-msg ai"><div class="gl-bubble">❌ ${e.message}</div></div>`;
+  }
+}
+
+async function glCallAPI(){
+  const contents=[
+    {role:'user',parts:[{text:GL_SYSTEM}]},
+    {role:'model',parts:[{text:'好的，我明白了。'}]},
+    ...glHistory
+  ];
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
+  const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents})});
+  const data=await res.json();
+  if(data.error)throw new Error(data.error.message);
+  return data.candidates[0].content.parts[0].text;
+}
+
+function glClearChat(){
+  glHistory=[];glArticleText='';
+  document.getElementById('gl-chat-box').innerHTML='<div class="gl-chat-msg ai"><div class="gl-bubble">嗨，我準備好了。貼入文章 URL、直接貼文字，或輸入一個英文句子都行。</div></div>';
+  document.getElementById('gl-article-card').style.display='none';
+}
+
+function glSaveChat(){
+  const msgs=document.querySelectorAll('#gl-chat-box .gl-chat-msg');if(msgs.length<=1)return;
+  const lines=['引導式學習 對話紀錄','儲存時間：'+new Date().toLocaleString('zh-TW'),''];
+  if(glArticleText){lines.push('【文章內容】',glArticleText,'','【對話】');}
+  msgs.forEach(m=>{
+    const isUser=m.classList.contains('user');
+    const text=m.querySelector('.gl-bubble')?.innerText||'';
+    if(text)lines.push((isUser?'你':'AI')+'：'+text,'');
+  });
+  const blob=new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='引導學習-'+new Date().toISOString().slice(0,10)+'.txt';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+
+function glToggleArticle(){
+  const prev=document.getElementById('gl-article-preview');
+  const tog=document.getElementById('gl-article-toggle');
+  const hidden=prev.style.display==='none';
+  prev.style.display=hidden?'':'none';
+  tog.textContent=hidden?'▲ 收起':'▼ 展開';
 }
 
 // INIT — load from Google Sheets first, then render
